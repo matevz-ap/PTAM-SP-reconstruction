@@ -14,7 +14,7 @@
 int main(int argc, char *argv[]) {
 
     std::string camera_device = "/dev/video1";
-    std::string project_path = "/home/kristian/Documents/reconstruction_code/realtime_reconstruction/dataset/webcam/";
+    std::string project_path = RECONSTRUCTION_ROOT"/dataset/webcam/";
 
     std::string images_path = project_path + "images/";
     std::string reconstruction_path = project_path + "reconstruction/";

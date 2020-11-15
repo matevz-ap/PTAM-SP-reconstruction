@@ -15,6 +15,8 @@ SET(LIBIGL_PATH $ENV{HOME}/Sources/libigl)
 SET(LIBIGL_INCLUDE_DIR ${LIBIGL_PATH}/include)
 SET(LIBIGL_LIBS_DIR ${LIBIGL_PATH}/optional/build)
 
+add_compile_definitions(RECONSTRUCTION_ROOT="${CMAKE_SOURCE_DIR}")
+
 add_library(igl::core STATIC IMPORTED)
 set_property(TARGET igl::core PROPERTY IMPORTED_LOCATION ${LIBIGL_LIBS_DIR}/libigl_core.a)
 add_library(igl::opengl STATIC IMPORTED)

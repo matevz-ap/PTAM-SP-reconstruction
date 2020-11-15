@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[]) {
 
-    std::string root_folder = "/home/kristian/Documents/reconstruction_code/realtime_reconstruction/dataset_viewer/";
+    std::string root_folder = RECONSTRUCTION_ROOT"/dataset_viewer/";
 
     // Dataset setting
     std::string project_folder = root_folder + "fountain/";
@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
 
         ImFontConfig font_cfg;
         font_cfg.GlyphExtraSpacing.x = 1.1f;
-        // ImGui::GetIO().Fonts->AddFontFromFileTTF("/home/kristian/Documents/reconstruction_code/realtime_reconstruction/resources/OpenSans-ExtraBold.ttf", 14.0f, &font_cfg);
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("/home/kristian/Documents/reconstruction_code/realtime_reconstruction/resources/Roboto-Bold.ttf", 16.0f, &font_cfg);
+        // ImGui::GetIO().Fonts->AddFontFromFileTTF(RECONSTRUCTION_ROOT"/realtime_reconstruction/resources/OpenSans-ExtraBold.ttf", 14.0f, &font_cfg);
+        ImGui::GetIO().Fonts->AddFontFromFileTTF(RECONSTRUCTION_ROOT"/resources/Roboto-Bold.ttf", 16.0f, &font_cfg);
         return false;
     };
 

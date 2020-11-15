@@ -10,16 +10,16 @@
 #include "nbv/QualityMeasure.h"
 #include "plugins/ReconstructionPlugin.h"
 #include "plugins/EditMeshPlugin.h"
-#include "plugins/NextBestViewPlugin.h"
+#include "plugins/PTAMExportPlugin.h"
 
 int main(int argc, char *argv[]) {
 
-    std::string root_folder = "/home/kristian/Documents/reconstruction_code/realtime_reconstruction/dataset/";
+    std::string root_folder = RECONSTRUCTION_ROOT"/dataset/";
 
     // Dataset settingvaza
-    std::string project_folder = root_folder + "timing/";
+    std::string project_folder = root_folder + "statues/";
 
-    int num_images = 100;
+    int num_images = 31;
     std::string image_ext = ".jpg";
     std::string images_folder = project_folder + "images/";
     std::string reconstruction_folder = project_folder + "reconstruction/";
@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
 
         ImFontConfig font_cfg;
         font_cfg.GlyphExtraSpacing.x = 1.1f;
-        // ImGui::GetIO().Fonts->AddFontFromFileTTF("/home/kristian/Documents/reconstruction_code/realtime_reconstruction/resources/OpenSans-ExtraBold.ttf", 14.0f, &font_cfg);
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("/home/kristian/Documents/reconstruction_code/realtime_reconstruction/resources/Roboto-Bold.ttf", 16.0f, &font_cfg);
+        // ImGui::GetIO().Fonts->AddFontFromFileTTF(RECONSTRUCTION_ROOT"/realtime_reconstruction/resources/OpenSans-ExtraBold.ttf", 14.0f, &font_cfg);
+        ImGui::GetIO().Fonts->AddFontFromFileTTF(RECONSTRUCTION_ROOT"/resources/Roboto-Bold.ttf", 16.0f, &font_cfg);
         return false;
     };
 
@@ -101,10 +101,9 @@ int main(int argc, char *argv[]) {
     EditMeshPlugin edit_mesh_plugin(mvs_scene);
     viewer.plugins.push_back(&edit_mesh_plugin);
 
-    // Attach next best view plugin
-    auto next_best_view = std::make_shared<NextBestView>(mvs_scene);
-    NextBestViewPlugin nbv_plugin(next_best_view);
-    viewer.plugins.push_back(&nbv_plugin);
+    // Attach PTAM export plugin
+    PTAMExportPlugin ptam_export_plugin(reconstruction_folder, reconstruction_builder, mvs_scene);
+    viewer.plugins.push_back(&ptam_export_plugin);
 
     // Start viewer
     viewer.launch();

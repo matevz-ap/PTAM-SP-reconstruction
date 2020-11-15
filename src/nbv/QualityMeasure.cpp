@@ -245,7 +245,7 @@ std::vector<double> QualityMeasure::pixelsPerArea() {
     std::vector<double> ppa(num_faces);
     for (int i = 0; i < num_faces; i++) {
         ppa[i] = sqrt(static_cast<double>(pixel_count[i]) / face_area[i]);
-        if (!isfinite(ppa[i])) {
+        if (!std::isfinite(ppa[i])) {
             ppa[i] = 0.0;
         }
     }
