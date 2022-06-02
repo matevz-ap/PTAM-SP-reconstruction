@@ -472,7 +472,7 @@ void NextBestViewPlugin::debug_callback() {
             ppa_render.push_back(next_best_view_->ppa_[face_id]);
         }
     }
-    std::string buffer_filename = RECONSTRUCTION_ROOT"/resources/render.dat";
+    std::string buffer_filename = "../resources/render.dat";
     writeBufferToFile(buffer_filename, image_width, image_height, ppa_render);
 }
 

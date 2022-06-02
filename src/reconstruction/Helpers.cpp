@@ -13,8 +13,7 @@ RealtimeReconstructionBuilder::Options SetRealtimeReconstructionBuilderOptions()
     // Feature detection options
 
     // Image retrieval options
-    options.image_retrieval_options.vocab_tree_path =
-            RECONSTRUCTION_ROOT"/resources/vocab_tree_flickr100K_words32K.bin";
+    options.image_retrieval_options.vocab_tree_path = "../resources/vocab_tree_flickr100K_words32K.bin";
     options.image_retrieval_options.query_options.max_num_images = 5;
 
     // Matching options
