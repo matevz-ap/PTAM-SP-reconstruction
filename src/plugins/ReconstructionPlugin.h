@@ -121,7 +121,8 @@ public:
                          std::shared_ptr<std::vector<std::string>> image_names,
                          std::shared_ptr<RealtimeReconstructionBuilder> reconstruction_builder,
                          std::shared_ptr<MVS::Scene> mvs_scene,
-                         std::shared_ptr<QualityMeasure> quality_measure);
+                         std::shared_ptr<QualityMeasure> quality_measure,
+                         bool use_gui = true);
 
     void init(igl::opengl::glfw::Viewer *_viewer) override;
     bool post_draw() override;
@@ -193,6 +194,8 @@ private:
 
     // Quality measure
     std::shared_ptr<QualityMeasure> quality_measure_;
+
+    bool use_gui_;
 
     // Log
     // std::ostringstream log_stream_;

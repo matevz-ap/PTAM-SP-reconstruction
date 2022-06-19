@@ -29,14 +29,16 @@ ReconstructionPlugin::ReconstructionPlugin(Parameters parameters,
                                            std::shared_ptr<std::vector<std::string>> image_names,
                                            std::shared_ptr<RealtimeReconstructionBuilder> reconstruction_builder,
                                            std::shared_ptr<MVS::Scene> mvs_scene,
-                                           std::shared_ptr<QualityMeasure> quality_measure)
+                                           std::shared_ptr<QualityMeasure> quality_measure,
+                                           bool use_gui)
         : parameters_(parameters),
           images_path_(std::move(images_path)),
           reconstruction_path_(std::move(reconstruction_path)),
           image_names_(std::move(image_names)),
           reconstruction_builder_(std::move(reconstruction_builder)),
           mvs_scene_(std::move(mvs_scene)),
-          quality_measure_(std::move(quality_measure)) {}
+          quality_measure_(std::move(quality_measure)),
+          use_gui_(std::move(use_gui)) {}
 
 void ReconstructionPlugin::init(igl::opengl::glfw::Viewer *_viewer) {
     ViewerPlugin::init(_viewer);
@@ -260,11 +262,13 @@ void ReconstructionPlugin::load_scene_callback() {
 
     std::string filename_mvs = std::string(parameters_.filename_buffer) + ".mvs";
     mvs_scene_->Load(reconstruction_path_ + filename_mvs);
-    set_mesh();
-    set_cameras();
-    show_mesh(true);
-    show_point_cloud(false);
-    center_object_callback();
+    if(use_gui_) {
+        set_mesh();
+        set_cameras();
+        show_mesh(true);
+        show_point_cloud(false);
+        center_object_callback();
+    }
     log_stream_ << "Scene loaded from: \n\t" << (reconstruction_path_ + filename_mvs) << std::endl;
 }
 
@@ -330,9 +334,11 @@ void ReconstructionPlugin::initialize_callback() {
         log_stream_ << "\tMessage = " << reconstruction_builder_->GetMessage() << "\n\n";
     }
     reconstruction_builder_->PrintStatistics(log_stream_, false, true, false);
-    set_cameras();
-    set_point_cloud();
-    center_object_callback();
+    if (use_gui_) {
+        set_cameras();
+        set_point_cloud();
+        center_object_callback();
+    }
 
     if (parameters_.auto_reconstruct) {
         reconstruct_mesh_callback();
@@ -383,8 +389,10 @@ void ReconstructionPlugin::extend_callback() {
     TheiaToMVS(reconstruction_builder_->GetReconstruction(), images_path_, *mvs_scene_);
 
     // Setup viewer
-    set_cameras();
-    set_point_cloud();
+    if (use_gui_) {
+        set_cameras();
+        set_point_cloud();
+    }
 
     if (parameters_.auto_reconstruct) {
         reconstruct_mesh_callback();
@@ -477,7 +485,9 @@ void ReconstructionPlugin::reconstruct_mesh_callback() {
 
         // Recompute array of vertices incident to each vertex
         mvs_scene_->mesh.ListIncidenteFaces();
-        set_mesh();
+        if (use_gui_) {
+            set_mesh();
+        }
     } else {
         log_stream_ << "Reconstruct mesh failed: Pointcloud is empty." << std::endl;
     }
