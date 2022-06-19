@@ -517,27 +517,51 @@ void PTAMExportPlugin::export_scene() {
 
 void PTAMExportPlugin::export_model() {
     log_stream_ << "EXPORT 3D model started" << std::endl;
-    Eigen::MatrixXf model;
-    model.resize(3, 4);
-    Eigen::MatrixXf ref;
-    ref.resize(3, 4);
+    Eigen::MatrixXf model(3, 4);
+    // model.resize(3, 4);
+    Eigen::MatrixXf ref(3, 4);
+    // ref.resize(3, 4);
+    // for (int i = 0; i < 4; i++) {
+    //     for (int j = 0; j < 3; j++) {
+    //         model(j, i) = parameters_.calPoint1Model[j];
+    //         ref(j, i) = parameters_.calPoint1Ref[j];
+    //     }
+    //     model(3, i) = 1;
+    //     ref(3, i) = 1;
+    // }
 
-    model.col(0) = Eigen::Vector4f(parameters_.calPoint1Model[0], parameters_.calPoint1Model[1], parameters_.calPoint1Model[2], 1);
-    ref.col(0) = Eigen::Vector4f(parameters_.calPoint1Ref[0], parameters_.calPoint1Ref[1], parameters_.calPoint1Ref[2], 1);
+    model.col(0) = Eigen::Vector3f(parameters_.calPoint1Model[0], parameters_.calPoint1Model[1], parameters_.calPoint1Model[2]);
+    ref.col(0) = Eigen::Vector3f(parameters_.calPoint1Ref[0], parameters_.calPoint1Ref[1], parameters_.calPoint1Ref[2]);
 
-    model.col(1) = Eigen::Vector4f(parameters_.calPoint2Model[0], parameters_.calPoint2Model[1], parameters_.calPoint2Model[2], 1);
-    ref.col(1) = Eigen::Vector4f(parameters_.calPoint2Ref[0], parameters_.calPoint2Ref[1], parameters_.calPoint2Ref[2], 1);
+    model.col(1) = Eigen::Vector3f(parameters_.calPoint2Model[0], parameters_.calPoint2Model[1], parameters_.calPoint2Model[2]);
+    ref.col(1) = Eigen::Vector3f(parameters_.calPoint2Ref[0], parameters_.calPoint2Ref[1], parameters_.calPoint2Ref[2]);
 
-    model.col(2) = Eigen::Vector4f(parameters_.calPoint3Model[0], parameters_.calPoint3Model[1], parameters_.calPoint3Model[2], 1);
-    ref.col(2) = Eigen::Vector4f(parameters_.calPoint3Ref[0], parameters_.calPoint3Ref[1], parameters_.calPoint3Ref[2], 1);
+    model.col(2) = Eigen::Vector3f(parameters_.calPoint3Model[0], parameters_.calPoint3Model[1], parameters_.calPoint3Model[2]);
+    ref.col(2) = Eigen::Vector3f(parameters_.calPoint3Ref[0], parameters_.calPoint3Ref[1], parameters_.calPoint3Ref[2]);
 
-    model.col(3) = Eigen::Vector4f(parameters_.calPoint4Model[0], parameters_.calPoint4Model[1], parameters_.calPoint4Model[2], 1);
-    ref.col(3) = Eigen::Vector4f(parameters_.calPoint4Ref[0], parameters_.calPoint4Ref[1], parameters_.calPoint4Ref[2], 1);
+    model.col(3) = Eigen::Vector3f(parameters_.calPoint4Model[0], parameters_.calPoint4Model[1], parameters_.calPoint4Model[2]);
+    ref.col(3) = Eigen::Vector3f(parameters_.calPoint4Ref[0], parameters_.calPoint4Ref[1], parameters_.calPoint4Ref[2]);
+
+    // model.col(0) = Eigen::Vector4f(parameters_.calPoint1Model[0], parameters_.calPoint1Model[1], parameters_.calPoint1Model[2], 1);
+    // ref.col(0) = Eigen::Vector4f(parameters_.calPoint1Ref[0], parameters_.calPoint1Ref[1], parameters_.calPoint1Ref[2], 1);
+
+    // model.col(1) = Eigen::Vector4f(parameters_.calPoint2Model[0], parameters_.calPoint2Model[1], parameters_.calPoint2Model[2], 1);
+    // ref.col(1) = Eigen::Vector4f(parameters_.calPoint2Ref[0], parameters_.calPoint2Ref[1], parameters_.calPoint2Ref[2], 1);
+
+    // model.col(2) = Eigen::Vector4f(parameters_.calPoint3Model[0], parameters_.calPoint3Model[1], parameters_.calPoint3Model[2], 1);
+    // ref.col(2) = Eigen::Vector4f(parameters_.calPoint3Ref[0], parameters_.calPoint3Ref[1], parameters_.calPoint3Ref[2], 1);
+
+    // model.col(3) = Eigen::Vector4f(parameters_.calPoint4Model[0], parameters_.calPoint4Model[1], parameters_.calPoint4Model[2], 1);
+    // ref.col(3) = Eigen::Vector4f(parameters_.calPoint4Ref[0], parameters_.calPoint4Ref[1], parameters_.calPoint4Ref[2], 1);
 
     auto transform = Eigen::umeyama(model, ref);
+
     for (int i = 0; i < mvs_scene_->mesh.vertices.size(); i++) {
         MVS::Mesh::Vertex vertex = mvs_scene_->mesh.vertices[i];
         auto v = Eigen::Vector4f(vertex[0], vertex[1], vertex[2], 1);
+        log_stream_ << transform << transform.cols() << transform.rows() << std::endl;
+        log_stream_ << v << v.cols() << v.rows() << std::endl;
+
         v = transform * v;
         mvs_scene_->mesh.vertices[i][0] = v.x();
         mvs_scene_->mesh.vertices[i][1] = v.y();
@@ -546,14 +570,14 @@ void PTAMExportPlugin::export_model() {
 
     mvs_scene_->Save(reconstructionFolder + parameters_.modelPath);
 
-    for (int i = 0; i < mvs_scene_->mesh.vertices.size(); i++) {
-        MVS::Mesh::Vertex vertex = mvs_scene_->mesh.vertices[i];
-        auto v = Eigen::Vector4f(vertex[0], vertex[1], vertex[2], 1);
-        v = transform.inverse() * v;
-        mvs_scene_->mesh.vertices[i][0] = v.x();
-        mvs_scene_->mesh.vertices[i][1] = v.y();
-        mvs_scene_->mesh.vertices[i][2] = v.z();
-    }
+    // for (int i = 0; i < mvs_scene_->mesh.vertices.size(); i++) {
+    //     MVS::Mesh::Vertex vertex = mvs_scene_->mesh.vertices[i];
+    //     auto v = Eigen::Vector4f(vertex[0], vertex[1], vertex[2], 1);
+    //     v = transform.inverse() * v;
+    //     mvs_scene_->mesh.vertices[i][0] = v.x();
+    //     mvs_scene_->mesh.vertices[i][1] = v.y();
+    //     mvs_scene_->mesh.vertices[i][2] = v.z();
+    // }
 
     log_stream_ << "EXPORT 3D model finished" << std::endl;
 }
