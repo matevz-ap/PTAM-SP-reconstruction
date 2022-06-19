@@ -17,10 +17,10 @@ int main(int argc, char *argv[]) {
     std::string root_folder = "../dataset/";
 
     // Dataset settingvaza
-    std::string project_folder = root_folder + "opeka/";
+    std::string project_folder = root_folder + argv[1];
 
-    int num_images = 31;
-    std::string image_ext = ".jpg";
+    int num_images = atoi(argv[3]);
+    std::string image_ext = argv[2];
     std::string images_folder = project_folder + "images/";
     std::string reconstruction_folder = project_folder + "reconstruction/";
     std::string calibration_file = project_folder + "prior_calibration.txt";
