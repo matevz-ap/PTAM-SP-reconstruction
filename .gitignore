@@ -9,8 +9,11 @@ cmake-build-release/
 
 # Ignore dataset
 dataset/
+dataset_new/
 dataset_viewer/
 dataset_render/
 
 # Ignore backup files
 _bak/
+
+sources/
