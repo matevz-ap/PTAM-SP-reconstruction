@@ -30,9 +30,8 @@ int main(int argc, char *argv[]) {
         }
         std::sort(image_names->begin(), image_names->end());
 
-        theia::CameraIntrinsicsPrior intrinsics_prior = ReadCalibration(calibration_path);
         RealtimeReconstructionBuilder::Options options = SetRealtimeReconstructionBuilderOptions();
-        options.intrinsics_prior = intrinsics_prior;
+        options.intrinsics_prior = ReadCalibration(calibration_path);
         auto reconstruction_builder = std::make_shared<RealtimeReconstructionBuilder>(options);
         auto mvs_scene = std::make_shared<MVS::Scene>(options.num_threads);
         auto quality_measure = std::make_shared<QualityMeasure>(mvs_scene);
@@ -86,9 +85,9 @@ int main(int argc, char *argv[]) {
                                                     quality_measure,
                                                     false);
         if (argv[1] == std::string("init")) {
-            reconstruction_plugin.initialize_callback();
+            // reconstruction_plugin.initialize_callback();
             // reconstruction_plugin.extend_all_callback();
-            // reconstruction_plugin.save_reconstruction_state("recon_state");
+            reconstruction_plugin.save_reconstruction_state("recon_state");
         }
         else if (argv[1] == std::string("extend")) {
             reconstruction_plugin.load_scene_callback();
