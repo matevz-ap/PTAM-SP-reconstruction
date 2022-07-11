@@ -492,8 +492,25 @@ theia::ViewId RealtimeReconstructionBuilder::GetLastAddedViewId() {
     }
 }
 
+const RealtimeFeatureMatcher& RealtimeReconstructionBuilder::GetFeatureMatcher() {
+    return *feature_matcher_;
+}
+
+void RealtimeReconstructionBuilder::SaveImageRetrieval(const std::string& path) {
+    image_retrieval_->SaveVisualIndex(path);
+}
+
+void RealtimeReconstructionBuilder::SetImageRetrieval(const std::string& path, int num_of_images) {
+    image_retrieval_->LoadVisualIndex(path);
+    image_retrieval_->SetNumImages(num_of_images);
+}
+
 const theia::Reconstruction& RealtimeReconstructionBuilder::GetReconstruction() {
     return *reconstruction_;
+}
+
+const theia::Reconstruction& RealtimeReconstructionBuilder::SetReconstruction(theia::Reconstruction reconstruction) {
+    return *reconstruction_ = reconstruction;
 }
 
 RealtimeReconstructionBuilder::Options RealtimeReconstructionBuilder::GetOptions() {

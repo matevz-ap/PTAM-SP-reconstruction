@@ -134,9 +134,12 @@ public:
 
     // Callback functions
     void save_scene_callback();
+    void save_scene_as_mvs_callback(const std::string& path);
     void load_scene_callback();
     void save_calibration_callback();
     void reload_mesh_callback();
+
+    void save_reconstruction_state(const std::string& reconstruction_path, const std::string& image_retrieval_path);
 
     void initialize_callback();
     void extend_callback();

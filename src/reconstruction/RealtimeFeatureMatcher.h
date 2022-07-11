@@ -5,6 +5,11 @@
 #include <theia/matching/cascade_hasher.h>
 #include <theia/sfm/two_view_match_geometric_verification.h>
 
+#include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/unordered_map.hpp>
+
 class RealtimeFeatureMatcher {
 public:
     struct Options {
@@ -63,6 +68,13 @@ public:
 
     // Initializes the cascade hasher (only if needed).
     void InitializeCascadeHasher(int descriptor_dimension);
+
+    template <class Archive>
+    void serialize(Archive& ar, const std::uint32_t version) { 
+        ar(intrinsics_,
+        image_names_,
+        keypoints_and_descriptors_);
+    }
 
     Options options_;
     theia::CameraIntrinsicsPrior intrinsics_;

@@ -101,9 +101,14 @@ public:
 
     // Getters
     theia::ViewId GetLastAddedViewId();
+    const RealtimeFeatureMatcher& GetFeatureMatcher();
+    void SaveImageRetrieval(const std::string& path);
     const theia::Reconstruction& GetReconstruction();
     Options GetOptions();
     std::string GetMessage();
+
+    const theia::Reconstruction& SetReconstruction(theia::Reconstruction recon);
+    void SetImageRetrieval(const std::string& path, int num_of_images);
 
 private:
     Options options_;

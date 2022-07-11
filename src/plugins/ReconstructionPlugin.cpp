@@ -23,6 +23,11 @@
 #include "reconstruction/Helpers.h"
 #include "util/Helpers.h"
 
+// Saving reconstruction state
+#include <sstream>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/types/memory.hpp>
+
 ReconstructionPlugin::ReconstructionPlugin(Parameters parameters,
                                            std::string images_path,
                                            std::string reconstruction_path,
@@ -255,6 +260,23 @@ void ReconstructionPlugin::save_scene_callback() {
         mvs_scene_->mesh.Save(reconstruction_path_ + filename_ply);
         log_stream_ << "Scene written to: \n\t" << (reconstruction_path_ + filename_ply) << std::endl;
     }
+}
+
+void ReconstructionPlugin::save_scene_as_mvs_callback(const std::string& path) {
+    log_stream_ << std::endl;
+
+    mvs_scene_->Save(path);
+    log_stream_ << "Scene written to: \n\t" << (path) << std::endl;
+}
+
+void ReconstructionPlugin::save_reconstruction_state(const std::string& reconstruction_path, const std::string& image_retrieval_path) {
+    // Save reconstruction_
+    std::ofstream os(reconstruction_path, std::ios::binary);
+    cereal::PortableBinaryOutputArchive archive(os);
+    archive(reconstruction_builder_->GetReconstruction());
+
+    // Save image retreival
+    reconstruction_builder_->SaveImageRetrieval(image_retrieval_path);
 }
 
 void ReconstructionPlugin::load_scene_callback() {

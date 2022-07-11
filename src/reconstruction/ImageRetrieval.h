@@ -35,6 +35,9 @@ public:
             const std::vector<Eigen::VectorXf>& descriptors);
 
     int GetNumImages();
+    void SetNumImages(int num);
+    void SaveVisualIndex(const std::string& path);
+    void LoadVisualIndex(const std::string& path);
 
 private:
     Options options_;

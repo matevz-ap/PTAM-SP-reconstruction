@@ -79,3 +79,16 @@ void ImageRetrieval::convertFromTheiaToColmap(const std::vector<theia::Keypoint>
 int ImageRetrieval::GetNumImages() {
     return num_images_;
 }
+
+void ImageRetrieval::SetNumImages(int num) {
+    num_images_ = num;
+}
+
+void ImageRetrieval::SaveVisualIndex(const std::string& path) {
+    visual_index_.Write(path);
+}
+
+void ImageRetrieval::LoadVisualIndex(const std::string& path) {
+    visual_index_.Read(path);
+    visual_index_.Prepare();
+}

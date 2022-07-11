@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
                 image_names->emplace_back("frame" + ss.str() + image_ext);
             }
 
+        if (argv[1] == std::string("init")) {
             ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
                                                     images_folder,
                                                     reconstruction_folder,
@@ -84,15 +85,27 @@ int main(int argc, char *argv[]) {
                                                     mvs_scene,
                                                     quality_measure,
                                                     false);
-        if (argv[1] == std::string("init")) {
-            // reconstruction_plugin.initialize_callback();
-            // reconstruction_plugin.extend_all_callback();
-            reconstruction_plugin.save_reconstruction_state("recon_state");
+            reconstruction_plugin.initialize_callback();
+            reconstruction_plugin.save_reconstruction_state("reconstruction_state", "image_retreival");
         }
-        else if (argv[1] == std::string("extend")) {
-            reconstruction_plugin.load_scene_callback();
+        else if (argv[1] == std::string("load")) {
+            std::ifstream os("recon_state", std::ios::binary);
+            cereal::PortableBinaryInputArchive iarchive(os);
+            theia::Reconstruction recon;
+            iarchive(recon);
+            reconstruction_builder->SetReconstruction(recon);
+            reconstruction_builder->SetImageRetrieval("visual", 2);
+            reconstruction_parameters.next_image_idx = 2;
+            ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
+                                                    images_folder,
+                                                    reconstruction_folder,
+                                                    image_names,
+                                                    reconstruction_builder,
+                                                    mvs_scene,
+                                                    quality_measure,
+                                                    false);
             reconstruction_plugin.extend_callback();
-            reconstruction_plugin.save_scene_callback();
+            reconstruction_plugin.save_scene_as_mvs_callback("mvs_new.mvs");
         }
     }
     return 0;
