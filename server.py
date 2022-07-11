@@ -1,6 +1,7 @@
 import codecs
 import os
-from flask import Flask, make_response
+import shortuuid
+from flask import Flask, make_response, request
 
 app = Flask(__name__)
 
@@ -13,10 +14,21 @@ def test():
     os.system("cd build/; ./reconstruction_cli stay")
     return "ok"
 
-@app.route("/init", methods=["GET"])
+@app.route("/init", methods=["POST"])
 def initialize_reconstruction():
-    os.system("cd build/; ./reconstruction_cli init")
-    return "OK"
+    print(request.__dict__)
+
+    if "image" not in request.files:
+        return "You need to provide 2 images in order to initialize reconstruction", 400
+    # os.system("cd build/; ./reconstruction_cli init")
+
+    uuid = shortuuid.uuid()
+    os.system(f"mkdir -p data/{uuid}/images")
+
+    file = request.files['image']
+    file.save(f"data/{uuid}/images/{file.filename}")
+
+    return uuid
 
 @app.route("/extend", methods=["GET"])
 def extend_reconstruction():
