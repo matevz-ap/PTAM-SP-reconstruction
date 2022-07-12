@@ -1,9 +1,15 @@
 import codecs
+from mimetypes import init
 import os
 import shortuuid
 from flask import Flask, make_response, request
 
 app = Flask(__name__)
+
+def save_file(uuid, file):
+    suffix = file.filename.split(".")[-1]
+    num_of_images = len([file for file in os.scandir(f"data/{uuid}/images")])
+    file.save(f"data/{uuid}/images/{num_of_images}.{suffix}")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -16,23 +22,26 @@ def test():
 
 @app.route("/init", methods=["POST"])
 def initialize_reconstruction():
-    print(request.__dict__)
-
     if "image" not in request.files:
-        return "You need to provide 2 images in order to initialize reconstruction", 400
-    # os.system("cd build/; ./reconstruction_cli init")
+        return "Missing requred reques paramater: 'image' of type file", 400
 
     uuid = shortuuid.uuid()
     os.system(f"mkdir -p data/{uuid}/images")
-
-    file = request.files['image']
-    file.save(f"data/{uuid}/images/{file.filename}")
+    save_file(uuid, request.files['image'])
 
     return uuid
 
-@app.route("/extend", methods=["GET"])
-def extend_reconstruction():
-    os.system("cd build/; ./reconstruction_cli extend")
+@app.route("/extend/<uuid>", methods=["POST"])
+def extend_reconstruction(uuid):
+    if "image" not in request.files:
+        return "Missing requred reques paramater: 'image' of type file", 400
+
+    save_file(uuid, request.files['image'])
+
+    if len([file for file in os.scandir(f"data/{uuid}/images")]) >= 2: # also needs check that init is not in progress
+        os.system(f"""cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}""")
+    else:
+        print("extend")
     return "OK"
 
 
