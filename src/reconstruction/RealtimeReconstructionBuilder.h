@@ -110,6 +110,7 @@ public:
 
     const theia::Reconstruction& SetReconstruction(theia::Reconstruction recon);
     void SetImageRetrieval(const std::string& path, int num_of_images);
+    void SetViewGraph(const std::string& path);
 
 private:
     Options options_;

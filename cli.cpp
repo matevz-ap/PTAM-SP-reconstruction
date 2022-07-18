@@ -94,12 +94,13 @@ int main(int argc, char *argv[]) {
         auto quality_measure = std::make_shared<QualityMeasure>(mvs_scene);
         ReconstructionPlugin::Parameters reconstruction_parameters;
 
-        std::ifstream os(output_folder + "/reconstruction_state", std::ios::binary);
+        std::ifstream os(output_folder + "/reconstruction", std::ios::binary);
         cereal::PortableBinaryInputArchive iarchive(os);
         theia::Reconstruction recon;
         iarchive(recon);
         reconstruction_builder->SetReconstruction(recon);
-        reconstruction_builder->SetImageRetrieval(output_folder + "/image_retreival", 2);
+        reconstruction_builder->SetImageRetrieval(output_folder + "/image_retrieval", 2);
+        reconstruction_builder->SetViewGraph(output_folder + "/view_graph");
         reconstruction_parameters.next_image_idx = 2;
         ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
                                                     images_folder,

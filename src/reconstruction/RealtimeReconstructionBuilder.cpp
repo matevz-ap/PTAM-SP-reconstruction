@@ -509,6 +509,10 @@ void RealtimeReconstructionBuilder::SetImageRetrieval(const std::string& path, i
     image_retrieval_->SetNumImages(num_of_images);
 }
 
+void RealtimeReconstructionBuilder::SetViewGraph(const std::string& path) {
+    view_graph_->ReadFromDisk(path);
+}
+
 const theia::Reconstruction& RealtimeReconstructionBuilder::GetReconstruction() {
     return *reconstruction_;
 }
