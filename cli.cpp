@@ -74,8 +74,7 @@ int main(int argc, char *argv[]) {
                                                     false);
 
         reconstruction_plugin.initialize_callback();
-        reconstruction_plugin.save_reconstruction_state(output_folder + "/reconstruction_state", output_folder + "/image_retreival");
-
+        reconstruction_plugin.save_reconstruction_state(output_folder);
     }
     else if (argv[1] == std::string("extend")) {
         std::string images_folder = argv[2];

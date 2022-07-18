@@ -103,6 +103,7 @@ public:
     theia::ViewId GetLastAddedViewId();
     const RealtimeFeatureMatcher& GetFeatureMatcher();
     void SaveImageRetrieval(const std::string& path);
+    void SaveViewGraph(const std::string& path);
     const theia::Reconstruction& GetReconstruction();
     Options GetOptions();
     std::string GetMessage();

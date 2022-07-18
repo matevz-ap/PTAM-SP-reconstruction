@@ -500,6 +500,10 @@ void RealtimeReconstructionBuilder::SaveImageRetrieval(const std::string& path) 
     image_retrieval_->SaveVisualIndex(path);
 }
 
+void RealtimeReconstructionBuilder::SaveViewGraph(const std::string& path) {
+    view_graph_->WriteToDisk(path);
+}
+
 void RealtimeReconstructionBuilder::SetImageRetrieval(const std::string& path, int num_of_images) {
     image_retrieval_->LoadVisualIndex(path);
     image_retrieval_->SetNumImages(num_of_images);

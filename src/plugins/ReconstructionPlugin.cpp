@@ -269,14 +269,17 @@ void ReconstructionPlugin::save_scene_as_mvs_callback(const std::string& path) {
     log_stream_ << "Scene written to: \n\t" << (path) << std::endl;
 }
 
-void ReconstructionPlugin::save_reconstruction_state(const std::string& reconstruction_path, const std::string& image_retrieval_path) {
+void ReconstructionPlugin::save_reconstruction_state(const std::string& output_folder) {
     // Save reconstruction_
-    std::ofstream os(reconstruction_path, std::ios::binary);
+    std::ofstream os(output_folder + "/reconstruction", std::ios::binary);
     cereal::PortableBinaryOutputArchive archive(os);
     archive(reconstruction_builder_->GetReconstruction());
 
     // Save image retreival
-    reconstruction_builder_->SaveImageRetrieval(image_retrieval_path);
+    reconstruction_builder_->SaveImageRetrieval(output_folder + "/image_retrieval");
+
+    // Save view graph
+    reconstruction_builder_->SaveViewGraph(output_folder + "/view_graph");
 }
 
 void ReconstructionPlugin::load_scene_callback() {
