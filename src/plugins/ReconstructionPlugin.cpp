@@ -269,6 +269,13 @@ void ReconstructionPlugin::save_scene_as_mvs_callback(const std::string& path) {
     log_stream_ << "Scene written to: \n\t" << (path) << std::endl;
 }
 
+void ReconstructionPlugin::save_scene_as_ply(const std::string& path) {
+    log_stream_ << std::endl;
+
+    mvs_scene_->mesh.Save(path);
+    log_stream_ << "Ply written to: \n\t" << (path) << std::endl;
+}
+
 void ReconstructionPlugin::save_reconstruction_state(const std::string& output_folder) {
     // Save reconstruction_
     std::ofstream os(output_folder + "/reconstruction", std::ios::binary);
@@ -277,9 +284,10 @@ void ReconstructionPlugin::save_reconstruction_state(const std::string& output_f
 
     // Save image retreival
     reconstruction_builder_->SaveImageRetrieval(output_folder + "/image_retrieval");
-
     // Save view graph
     reconstruction_builder_->SaveViewGraph(output_folder + "/view_graph");
+
+    mvs_scene_->Save(output_folder + "/scene.mvs");
 }
 
 void ReconstructionPlugin::load_scene_callback() {
