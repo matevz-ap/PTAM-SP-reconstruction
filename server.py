@@ -3,7 +3,7 @@ from mimetypes import init
 import os
 import subprocess
 import shortuuid
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, send_file
 
 app = Flask(__name__)
 
@@ -57,14 +57,13 @@ def download_mvs_old():
 @app.route("/<uuid>/download_ply", methods=["GET"])
 def download_ply(uuid):
     os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
-    file_data = codecs.open(f"./data/{uuid}/ply.ply", "rb").read()
-    response = make_response()
-    response.data = file_data
-    return response
+    return send_file(f"./data/{uuid}/ply.ply")
 
 @app.route("/<uuid>/download_mvs", methods=["GET"])
 def download_mvs(uuid):
-    file_data = codecs.open(f"./data/{uuid}/scene.mvs", "rb").read()
-    response = make_response()
-    response.data = file_data
-    return response
+    return send_file(f"./data/{uuid}/scene.mvs")
+
+@app.route("/<uuid>/download_ptam", methods=["GET"])
+def download_ptam(uuid):
+    os.system(f"""cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
+    return send_file(f"./data/{uuid}/ptam")
