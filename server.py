@@ -38,10 +38,11 @@ def extend_reconstruction(uuid):
 
     save_file(uuid, request.files['image'])
 
-    if len([file for file in os.scandir(f"data/{uuid}/images")]) == 2: # also needs check that init is not in progress
+    number_of_images = len([file for file in os.scandir(f"data/{uuid}/images")])
+    if  number_of_images == 2: # also needs check that init is not in progress
         os.system(f"""cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}""")
     else:
-        os.system(f"""cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}""")
+        os.system(f"""cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid} {number_of_images - 1}""")
     return "OK"
 
 

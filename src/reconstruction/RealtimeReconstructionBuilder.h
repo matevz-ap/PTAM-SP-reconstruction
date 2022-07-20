@@ -111,6 +111,7 @@ public:
     const theia::Reconstruction& SetReconstruction(theia::Reconstruction recon);
     void SetImageRetrieval(const std::string& path, int num_of_images);
     void SetViewGraph(const std::string& path);
+    void SetKeypoints(const std::string& images_folder, std::shared_ptr<std::vector<std::string>> image_names, int next_image_idx);
 
 private:
     Options options_;

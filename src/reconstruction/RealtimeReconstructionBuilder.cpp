@@ -13,6 +13,9 @@
 #include <theia/io/write_ply_file.h>
 #include <colmap/retrieval/utils.h>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 RealtimeReconstructionBuilder::RealtimeReconstructionBuilder(const Options& options)
         : options_(options) {
 
@@ -507,6 +510,18 @@ void RealtimeReconstructionBuilder::SaveViewGraph(const std::string& path) {
 void RealtimeReconstructionBuilder::SetImageRetrieval(const std::string& path, int num_of_images) {
     image_retrieval_->LoadVisualIndex(path);
     image_retrieval_->SetNumImages(num_of_images);
+}
+
+void RealtimeReconstructionBuilder::SetKeypoints(const std::string& images_folder, std::shared_ptr<std::vector<std::string>> image_names, int next_image_idx) {
+    for(int i = 0; i < next_image_idx; i++) {
+        std::string image_filename;
+        theia::GetFilenameFromFilepath(images_folder + image_names->at(i), true, &image_filename);
+        theia::FloatImage image(images_folder + image_names->at(i));
+        std::vector<theia::Keypoint> image_keypoints;
+        std::vector<Eigen::VectorXf> image_descriptors;
+        descriptor_extractor_->DetectAndExtractDescriptors(image, &image_keypoints, &image_descriptors);
+        feature_matcher_->AddImage(image_filename, image_keypoints, image_descriptors);
+    }
 }
 
 void RealtimeReconstructionBuilder::SetViewGraph(const std::string& path) {
