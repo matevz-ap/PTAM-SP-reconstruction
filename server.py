@@ -1,6 +1,7 @@
 import codecs
 from mimetypes import init
 import os
+import subprocess
 import shortuuid
 from flask import Flask, make_response, request
 
@@ -31,7 +32,7 @@ def initialize_reconstruction():
 
     return uuid
 
-@app.route("/extend/<uuid>", methods=["POST"])
+@app.route("/<uuid>/extend", methods=["POST"])
 def extend_reconstruction(uuid):
     if "image" not in request.files:
         return "Missing requred reques paramater: 'image' of type file", 400
@@ -47,15 +48,23 @@ def extend_reconstruction(uuid):
 
 
 @app.route("/download_mvs", methods=["GET"])
-def download_mvs():
+def download_mvs_old():
     file_data = codecs.open("dataset_new/opeka/reconstruction/opeka.mvs", 'rb').read()
     response = make_response()
     response.data = file_data
     return response
 
-@app.route("/download_ply", methods=["GET"])
-def download_ply():
-    file_data = codecs.open("dataset_new/opeka/reconstruction/opeka.ply", 'rb').read()
+@app.route("/<uuid>/download_ply", methods=["GET"])
+def download_ply(uuid):
+    os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
+    file_data = codecs.open(f"./data/{uuid}/ply.ply", "rb").read()
+    response = make_response()
+    response.data = file_data
+    return response
+
+@app.route("/<uuid>/download_mvs", methods=["GET"])
+def download_mvs(uuid):
+    file_data = codecs.open(f"./data/{uuid}/scene.mvs", "rb").read()
     response = make_response()
     response.data = file_data
     return response
