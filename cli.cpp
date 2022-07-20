@@ -114,6 +114,7 @@ int main(int argc, char *argv[]) {
                                                     quality_measure,
                                                     false);
         reconstruction_plugin.extend_callback();
+        reconstruction_plugin.save_reconstruction_state(output_folder);
     }
     return 0;
 }
