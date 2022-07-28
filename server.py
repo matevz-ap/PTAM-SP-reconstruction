@@ -1,3 +1,4 @@
+import base64
 import codecs
 from mimetypes import init
 import os
@@ -10,7 +11,7 @@ app = Flask(__name__)
 def save_file(uuid, file):
     suffix = file.filename.split(".")[-1]
     num_of_images = len([file for file in os.scandir(f"data/{uuid}/images")])
-    file.save(f"data/{uuid}/images/{num_of_images}.{suffix}")
+    file.save(f"data/{uuid}/images/{num_of_images}.png")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -25,11 +26,10 @@ def test():
 def initialize_reconstruction():
     if "image" not in request.files:
         return "Missing requred reques paramater: 'image' of type file", 400
-
+    
     uuid = shortuuid.uuid()
     os.system(f"mkdir -p data/{uuid}/images")
     save_file(uuid, request.files['image'])
-
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
