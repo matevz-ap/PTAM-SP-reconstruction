@@ -1,12 +1,11 @@
-import base64
 import codecs
-from mimetypes import init
 import os
-import subprocess
 import shortuuid
 from flask import Flask, make_response, request, send_file
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 def save_file(uuid, file):
     suffix = file.filename.split(".")[-1]
@@ -67,3 +66,6 @@ def download_mvs(uuid):
 def download_ptam(uuid):
     os.system(f"""cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
     return send_file(f"./data/{uuid}/ptam")
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port=5000)
