@@ -17,7 +17,7 @@ def _number_of_images(uuid):
 
 def save_file(uuid, file):
     num_of_images = _number_of_images(uuid)
-    file.save(f"data/{uuid}/images/{num_of_images}.png")
+    file.save(f"data/{uuid}/images/{num_of_images}.jpg")
 
 @app.route("/init", methods=["POST"])
 def initialize_reconstruction():
@@ -38,10 +38,9 @@ def extend_reconstruction(uuid):
 
     number_of_images = _number_of_images(uuid)
     if  number_of_images == 2: # also needs check that init is not in progress
-        task = q.enqueue(init_reconstruction_task, uuid)
-        print(task.get_id())
+        q.enqueue(init_reconstruction_task, uuid)
     else:
-        task = q.enqueue(extend_reconstruction_task, uuid, number_of_images)
+        q.enqueue(extend_reconstruction_task, uuid, number_of_images)
 
     return "OK"
 

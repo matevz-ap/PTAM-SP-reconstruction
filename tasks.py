@@ -1,4 +1,5 @@
 import os
+
 def init_reconstruction_task(uuid):
     os.system(f"""cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}""")
 
