@@ -1,30 +1,28 @@
-import codecs
 import os
 import shortuuid
-from flask import Flask, make_response, request, send_file
+from flask import Flask, request, send_file
 from flask_cors import CORS
+from rq import Queue
+from worker import conn
+
+from tasks import init_reconstruction_task, extend_reconstruction_task
 
 app = Flask(__name__)
 CORS(app)
 
+q = Queue(connection=conn)
+
+def _number_of_images(uuid):
+    return len([file for file in os.scandir(f"data/{uuid}/images")])
+
 def save_file(uuid, file):
-    suffix = file.filename.split(".")[-1]
-    num_of_images = len([file for file in os.scandir(f"data/{uuid}/images")])
+    num_of_images = _number_of_images(uuid)
     file.save(f"data/{uuid}/images/{num_of_images}.png")
-
-@app.route("/", methods=["GET"])
-def index():
-    return "Hello"
-
-@app.route("/test", methods=["GET"])
-def test():
-    os.system("cd build/; ./reconstruction_cli stay")
-    return "ok"
 
 @app.route("/init", methods=["POST"])
 def initialize_reconstruction():
     if "image" not in request.files:
-        return "Missing requred reques paramater: 'image' of type file", 400
+        return "Missing requred request paramater: 'image' of type file", 400
     
     uuid = shortuuid.uuid()
     os.system(f"mkdir -p data/{uuid}/images")
@@ -38,20 +36,14 @@ def extend_reconstruction(uuid):
 
     save_file(uuid, request.files['image'])
 
-    number_of_images = len([file for file in os.scandir(f"data/{uuid}/images")])
+    number_of_images = _number_of_images(uuid)
     if  number_of_images == 2: # also needs check that init is not in progress
-        os.system(f"""cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}""")
+        task = q.enqueue(init_reconstruction_task, uuid)
+        print(task.get_id())
     else:
-        os.system(f"""cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid} {number_of_images - 1}""")
+        task = q.enqueue(extend_reconstruction_task, uuid, number_of_images)
+
     return "OK"
-
-
-@app.route("/download_mvs", methods=["GET"])
-def download_mvs_old():
-    file_data = codecs.open("dataset_new/opeka/reconstruction/opeka.mvs", 'rb').read()
-    response = make_response()
-    response.data = file_data
-    return response
 
 @app.route("/<uuid>/download_ply", methods=["GET"])
 def download_ply(uuid):
