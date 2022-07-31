@@ -105,17 +105,21 @@ RUN apt-get -y install \
     libxcursor-dev
 
 ADD ./sources/libigl /root/Sources/libigl
-RUN git clone https://github.com/KristianZarn/Reconstruction.git
+RUN git clone https://github.com/matevz-ap/PTAM-SP-reconstruction.git
 
 # RUN git clone https://github.com/Dav1dde/glad.git && \
 #     cd glad && \
 #     cmake ./ && \
 #     make && \
-#     cp -a include /usr/local/
+#     cp -a inshortuuidclude /usr/local/
 
-RUN cd Reconstruction && \
+RUN cd PTAM-SP-reconstruction && \
     mkdir build && \
     cd build && \
     cmake .. && \
     make -j2 
+
+RUN apt-get -y install redis-server \ 
+    python3-pip
+RUN pip install -r requirements.txt
 
