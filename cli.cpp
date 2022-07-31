@@ -11,6 +11,7 @@
 #include "plugins/ReconstructionPlugin.h"
 #include "plugins/EditMeshPlugin.h"
 #include "plugins/NextBestViewPlugin.h"
+#include "plugins/PTAMExportPlugin.h"
 
 #include <string>
 #include <filesystem>
@@ -128,7 +129,8 @@ int main(int argc, char *argv[]) {
             reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
         }
         else if (argv[2] == std::string("ptam")) {
-            
+            PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_builder, mvs_scene);
+            ptam_export_plugin.export_scene();
         }
     }
     return 0;

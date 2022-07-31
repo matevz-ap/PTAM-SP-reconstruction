@@ -44,7 +44,8 @@ public:
     void init(igl::opengl::glfw::Viewer *_viewer) override;
     bool pre_draw() override;
     bool post_draw() override;
-
+    void export_scene();
+    void export_model();
 
 private:
     // Parameters
@@ -70,8 +71,6 @@ private:
     void set_mesh();
     void show_mesh(bool visible);
     void set_cal_points();
-    void export_scene();
-    void export_model();
 };
 
 #endif //REALTIME_RECONSTRUCTION_PTAMEXPORTPLUGIN_H
