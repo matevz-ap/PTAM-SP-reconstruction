@@ -5,7 +5,7 @@ from flask_cors import CORS
 from rq import Queue
 from worker import conn
 
-from tasks import init_reconstruction_task, extend_reconstruction_task
+from tasks import download_ptam_task, init_reconstruction_task, extend_reconstruction_task
 
 app = Flask(__name__)
 CORS(app)
@@ -55,8 +55,8 @@ def download_mvs(uuid):
 
 @app.route("/<uuid>/download_ptam", methods=["GET"])
 def download_ptam(uuid):
-    os.system(f"""cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
-    return send_file(f"./data/{uuid}/ptam")
+    q.enqueue(download_ptam_task, uuid)
+    return send_file(f"./data/{uuid}/installer")
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)

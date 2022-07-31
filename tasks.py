@@ -5,3 +5,6 @@ def init_reconstruction_task(uuid):
 
 def extend_reconstruction_task(uuid, number_of_images):
     os.system(f"""cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid} {number_of_images - 1}""")
+
+def download_ptam_task(uuid):
+    os.system(f"""cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
