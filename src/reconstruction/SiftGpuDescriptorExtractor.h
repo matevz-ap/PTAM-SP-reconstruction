@@ -15,7 +15,7 @@ public:
         int num_threads = -1;
 
         // Whether to use the GPU for feature extraction.
-        bool use_gpu = true;
+        bool use_gpu = false;
 
         // Index of the GPU used for feature extraction. For multi-GPU extraction,
         // you should separate multiple GPU indices by comma, e.g., "0,1,2,3".

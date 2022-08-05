@@ -48,9 +48,11 @@ link_directories(${COLMAP_LINK_DIRS})
 find_package(OpenCV REQUIRED)
 find_package(Boost COMPONENTS filesystem iostreams program_options serialization system REQUIRED)
 
-set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda")
+if(CUDA_FOUND)
 find_package(CUDA REQUIRED)
-find_package(CGAL REQUIRED)
+        set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda")
+        find_package(CGAL REQUIRED)
+endif()
 
 #set(OpenMVS_DIR "/usr/local/cmakeinstall/lib/cmake/OpenMVS")
 find_package(OpenMVS REQUIRED)
