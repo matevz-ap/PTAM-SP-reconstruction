@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM nvidia/cuda:11.7.0-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive  
 
 RUN apt-get update && apt-get -y install \
@@ -28,20 +28,8 @@ RUN cd TheiaSfM && \
     make -j2 && \
     make install
 
-# RUN apt-get -y install \
-#     libboost-all-dev \
-#     libfreeimage-dev \
-#     libglew-dev \
-#     qtbase5-dev \
-#     libcgal-dev \
-
 RUN apt-get -y install \
-    build-essential \
-    libboost-program-options-dev \
-    libboost-filesystem-dev \
-    libboost-graph-dev \
-    libboost-system-dev \
-    libboost-test-dev \
+    libboost-all-dev \
     libsuitesparse-dev \
     libfreeimage-dev \
     libmetis-dev \
@@ -49,27 +37,26 @@ RUN apt-get -y install \
     libglew-dev \
     qtbase5-dev \
     libqt5opengl5-dev \
-    libcgal-dev
+    libcgal-dev 
+
+ENV CUDA_ARCHS "Pascal"
 
 RUN git clone https://github.com/matevz-ap/colmap.git
 RUN cd colmap && \
 	mkdir build && \
 	cd build && \
-	cmake .. &&\
+	cmake .. -DCUDA_ARCHS="${CUDA_ARCHS}" &&\
 	make -j4 && \
 	make install
-
-# Build OpenMVS
-RUN apt-get -y install \
-    libopencv-dev \
-    libboost-all-dev
 
 RUN git clone https://github.com/cdcseacave/VCG.git vcglib
 RUN git clone https://github.com/cdcseacave/openMVS.git
 
+RUN apt-get -y install libopencv-dev 
+
 RUN mkdir openMVS_build && \
     cd openMVS_build && \
-    cmake . ../openMVS -DCMAKE_BUILD_TYPE=Release -DVCG_ROOT="../vcglib" && \
+    cmake . ../openMVS -DCMAKE_BUILD_TYPE=Release -DVCG_ROOT="../vcglib" -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs && \
     make -j2 && \
     make install
 
@@ -84,15 +71,12 @@ RUN apt-get -y install \
 
 ADD ./sources/libigl /root/Sources/libigl
 
-RUN apt-get -y install redis-server \ 
-    python3-pip
-
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-COPY . /app/
+RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.7/compat
 
-RUN apt -y install nvidia-cuda-toolkit
+COPY . /app/
 
 RUN cd app && \
     mkdir build && \
