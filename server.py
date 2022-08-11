@@ -1,4 +1,5 @@
 import os
+from PIL import Image
 import shortuuid
 from flask import Flask, request, send_file
 from flask_cors import CORS
@@ -19,14 +20,28 @@ def save_file(uuid, file):
     num_of_images = _number_of_images(uuid)
     file.save(f"data/{uuid}/images/{num_of_images}.jpg")
 
+def get_camera_settings(uuid, image):
+    exif = image.getexif().get_ifd(0x8769)
+    
+    with open(f"data/{uuid}/camera_settings.txt", 'a') as file:
+        file.write(f"{exif[40962]}\n") # width
+        file.write(f"{exif[40963]}\n") # heigt
+        file.write(f"{exif[37386] * 1000}\n") # focal length
+        file.write(f"{exif[40962] / 2}\n") # height / 2
+        file.write(f"{exif[40963] / 2}\n") # width / 2
+        file.write("1.0\n") # aspect ratio
+        file.write("0.0\n\n") # skew
+
 @app.route("/init", methods=["POST"])
 def initialize_reconstruction():
     if "image" not in request.files:
         return "Missing requred request paramater: 'image' of type file", 400
     
     uuid = shortuuid.uuid()
+    image = request.files['image']
     os.system(f"mkdir -p data/{uuid}/images")
-    save_file(uuid, request.files['image'])
+    save_file(uuid, image)
+    get_camera_settings(uuid, Image.open(image))
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
