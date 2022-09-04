@@ -26,7 +26,7 @@ def get_camera_settings(uuid, image):
     with open(f"data/{uuid}/camera_settings.txt", 'a') as file:
         file.write(f"{exif[40962]}\n") # width
         file.write(f"{exif[40963]}\n") # heigt
-        file.write(f"{exif[37386] * 1000}\n") # focal length
+        file.write(f"{exif[37386] * 1000}\n" if exif[37386] > 0 else "4100\n") # focal length
         file.write(f"{exif[40962] / 2}\n") # height / 2
         file.write(f"{exif[40963] / 2}\n") # width / 2
         file.write("1.0\n") # aspect ratio
@@ -61,7 +61,7 @@ def extend_reconstruction(uuid):
 
 @app.route("/<uuid>/download_ply", methods=["GET"])
 def download_ply(uuid):
-    os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../dataset/opeka/prior_calibration.txt ../data/{uuid}/""")
+    os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/""")
     return send_file(f"./data/{uuid}/ply.ply")
 
 @app.route("/<uuid>/download_mvs", methods=["GET"])
