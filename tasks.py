@@ -1,11 +1,10 @@
 import json
 import subprocess
-import os
-import sys
 import re
 
-def make_response(numbers, success):
+def make_response(uuid, numbers, success):
     return json.dumps({
+        "reconstruction_id": uuid,
         "success": success, 
         "duration": numbers[0],
         "views": numbers[1],
@@ -22,22 +21,25 @@ def init_reconstruction_task(uuid):
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     numbers.pop(1)
-    print(output)
-    print(make_response(numbers, "Initialization successful" in output))
-    return make_response(numbers, "Initialization successful" in output)
+    return make_response(uuid, list(map(float, numbers)), "Initialization successful" in output)
     
 
 def extend_reconstruction_task(uuid, number_of_images):
     command = f"cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid} {number_of_images - 1}"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
-    return make_response(numbers, "Extend failed" not in output)
+    return make_response(uuid, list(map(float, numbers)), "Extend successful" in output)
 
 
-def generate_ply(uuid):
+def generate_ply_task(uuid):
     command = f"cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
+    return {
+        "succes": True,
+        "reconstruction_id": uuid,
+    }
 
 
-def download_ptam_task(uuid):
-    os.system(f"""cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/""")
+def generate_ptam_task(uuid):
+    command = f"cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
+    output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()

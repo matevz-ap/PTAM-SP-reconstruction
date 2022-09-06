@@ -1,12 +1,15 @@
 import os
+import json
 from PIL import Image
 import shortuuid
-from flask import Flask, request, send_file
+
+from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 from rq import Queue
+from rq.job import Job
 from worker import conn
 
-from tasks import download_ptam_task, generate_ply, init_reconstruction_task, extend_reconstruction_task
+from tasks import generate_ptam_task, generate_ply_task, init_reconstruction_task, extend_reconstruction_task
 
 app = Flask(__name__)
 CORS(app)
@@ -53,27 +56,42 @@ def extend_reconstruction(uuid):
 
     number_of_images = _number_of_images(uuid)
     if  number_of_images == 2: # also needs check that init is not in progress
-        q.enqueue(init_reconstruction_task, uuid)
+        job = q.enqueue(init_reconstruction_task, uuid)
     else:
-        q.enqueue(extend_reconstruction_task, uuid, number_of_images)
+        job = q.enqueue(extend_reconstruction_task, uuid, number_of_images)
 
-    return "OK"
+    return job.get_id()
 
-@app.route("/<uuid>/download_ply", methods=["GET"])
+@app.route("/<uuid>/generate/ply", methods=["GET"])
+def generate_ply(uuid):
+    job = q.enqueue(generate_ply_task, uuid)
+    return job.get_id()
+
+@app.route("/<uuid>/generate/ptam", methods=["GET"])
+def generate_ptam(uuid):
+    job = q.enqueue(generate_ptam_task, uuid)
+    return job.get_id()
+
+@app.route("/<uuid>/download/ply", methods=["GET"])
 def download_ply(uuid):
-    q.enqueue(generate_ply, uuid)
-    # os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/""")
-    # return send_file(f"./data/{uuid}/ply.ply")
-    return ""
+    return send_file(f"./data/{uuid}/ply.ply")
 
-@app.route("/<uuid>/download_mvs", methods=["GET"])
+@app.route("/<uuid>/download/mvs", methods=["GET"])
 def download_mvs(uuid):
     return send_file(f"./data/{uuid}/scene.mvs")
 
-@app.route("/<uuid>/download_ptam", methods=["GET"])
+@app.route("/<uuid>/download/ptam", methods=["GET"])
 def download_ptam(uuid):
-    q.enqueue(download_ptam_task, uuid)
     return send_file(f"./data/{uuid}/installer")
+
+@app.route("/results/<job_key>", methods=['GET'])
+def get_results(job_key):
+    job = Job.fetch(job_key, connection=conn)
+
+    if job.is_finished:
+        return json.loads(job.result), 200
+    else:
+        return "In progress", 202
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
