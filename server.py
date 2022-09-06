@@ -6,7 +6,7 @@ from flask_cors import CORS
 from rq import Queue
 from worker import conn
 
-from tasks import download_ptam_task, init_reconstruction_task, extend_reconstruction_task
+from tasks import download_ptam_task, generate_ply, init_reconstruction_task, extend_reconstruction_task
 
 app = Flask(__name__)
 CORS(app)
@@ -61,8 +61,10 @@ def extend_reconstruction(uuid):
 
 @app.route("/<uuid>/download_ply", methods=["GET"])
 def download_ply(uuid):
-    os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/""")
-    return send_file(f"./data/{uuid}/ply.ply")
+    q.enqueue(generate_ply, uuid)
+    # os.system(f"""cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/""")
+    # return send_file(f"./data/{uuid}/ply.ply")
+    return ""
 
 @app.route("/<uuid>/download_mvs", methods=["GET"])
 def download_mvs(uuid):
