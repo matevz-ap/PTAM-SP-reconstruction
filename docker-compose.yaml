@@ -5,6 +5,8 @@ services:
     command: bash -c "cd /app && python3 server.py"
     volumes:
       - ./data:/app/data
+      - ./server.py:/app/server.py
+      - ./tasks.py:/app/tasks.py
     ports:
       - '5000:5000'
     deploy:
@@ -19,6 +21,8 @@ services:
       - redis
     volumes:
       - ./data:/app/data
+      - ./tasks.py:/app/tasks.py
+      - ./worker.py:/app/worker.py
     deploy:
       resources:
         reservations:
