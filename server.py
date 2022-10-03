@@ -2,11 +2,13 @@ import os
 import json
 from PIL import Image
 import shortuuid
+import subprocess
 
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 from rq import Queue
 from rq.job import Job
+from rq.exceptions import NoSuchJobError
 from worker import conn
 
 from tasks import generate_ptam_task, generate_ply_task, init_reconstruction_task, extend_reconstruction_task
@@ -74,6 +76,8 @@ def generate_ptam(uuid):
 
 @app.route("/<uuid>/download/ply", methods=["GET"])
 def download_ply(uuid):
+    command = f"cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
+    subprocess.run(command, capture_output=True, shell=True)
     return send_file(f"./data/{uuid}/ply.ply")
 
 @app.route("/<uuid>/download/mvs", methods=["GET"])
@@ -86,12 +90,15 @@ def download_ptam(uuid):
 
 @app.route("/results/<job_key>", methods=['GET'])
 def get_results(job_key):
-    job = Job.fetch(job_key, connection=conn)
+    try:
+        job = Job.fetch(job_key, connection=conn)
+    except NoSuchJobError:
+        return json.dumps({"status": "does_not_exist"}), 202
 
     if job.is_finished:
         return json.loads(job.result), 200
     else:
-        return "In progress", 202
+        return json.dumps({"status": "in_progress"}), 202
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
