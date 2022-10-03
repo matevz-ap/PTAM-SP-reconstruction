@@ -3,17 +3,21 @@ import subprocess
 import re
 
 def make_response(uuid, numbers, success):
-    return json.dumps({
-        "reconstruction_id": uuid,
-        "success": success, 
-        "duration": numbers[0],
-        "views": numbers[1],
-        "estimated_views": numbers[2],
-        "tracks": numbers[3],
-        "estimated_tracks": numbers[4],
-        "vertices": numbers[12] if len(numbers) > 10 else 0,
-        "faces": numbers[13] if len(numbers) > 10 else 0,
-    })
+    try:
+        return json.dumps({
+            "reconstruction_id": uuid,
+            "success": success, 
+            "duration": numbers[0],
+            "views": numbers[1],
+            "estimated_views": numbers[2],
+            "tracks": numbers[3],
+            "estimated_tracks": numbers[4],
+            "vertices": numbers[12] if len(numbers) > 10 else 0,
+            "faces": numbers[13] if len(numbers) > 10 else 0,
+            "status": "finished",
+        })
+    except BaseException:
+        return json.dumps({"success": success})
 
 
 def init_reconstruction_task(uuid):
