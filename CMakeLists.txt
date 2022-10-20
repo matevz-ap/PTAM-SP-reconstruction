@@ -113,10 +113,10 @@ set(LIBRARIES
 
 link_directories(/usr/local/lib/OpenMVS)
 
-# add_executable(reconstruction_disk main_disk.cpp ${SOURCE_FILES})
-# target_compile_definitions(reconstruction_disk PRIVATE -DIGL_STATIC_LIBRARY -DCOLMAP_DONT_SPECIALIZE_HASH)
-# target_include_directories(reconstruction_disk PUBLIC ${INCLUDE_DIRS})
-# target_link_libraries(reconstruction_disk ${LIBRARIES})
+add_executable(reconstruction_disk main_disk.cpp ${SOURCE_FILES})
+target_compile_definitions(reconstruction_disk PRIVATE -DIGL_STATIC_LIBRARY -DCOLMAP_DONT_SPECIALIZE_HASH)
+target_include_directories(reconstruction_disk PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(reconstruction_disk ${LIBRARIES})
 
 add_executable(reconstruction_cli cli.cpp ${SOURCE_FILES})
 target_compile_definitions(reconstruction_cli PRIVATE -DIGL_STATIC_LIBRARY -DCOLMAP_DONT_SPECIALIZE_HASH)
