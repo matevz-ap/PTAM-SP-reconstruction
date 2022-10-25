@@ -22,13 +22,12 @@ std::tuple<std::shared_ptr<RealtimeReconstructionBuilder>,
     std::shared_ptr<MVS::Scene>, 
     std::shared_ptr<QualityMeasure>, 
     ReconstructionPlugin::Parameters, 
-    std::shared_ptr<std::vector<std::string>>> init_params(const std::string& images_folder, const std::string& calibration_path) 
+    std::shared_ptr<std::vector<std::string>>> init_params(const std::string& images_folder, const std::string& calibration_path, int num_of_images)
 {
     std::shared_ptr<std::vector<std::string>> image_names = std::make_shared<std::vector<std::string>>();
-    for (const auto & entry : fs::directory_iterator(images_folder)) {
-        image_names->emplace_back(entry.path().filename());
+    for (int i = 0; i <= num_of_images; i++) {
+        image_names->emplace_back(std::to_string(i) + ".jpg");
     }
-    std::sort(image_names->begin(), image_names->end());
 
     RealtimeReconstructionBuilder::Options options = SetRealtimeReconstructionBuilderOptions();
     options.intrinsics_prior = ReadCalibration(calibration_path);
@@ -45,7 +44,7 @@ int main(int argc, char *argv[]) {
         std::string calibration_path = argv[3];
         std::string output_folder = argv[4];
 
-        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path);
+        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, 2);
         ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
                                                     images_folder,
                                                     output_folder,
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
         std::string calibration_path = argv[3]; // needs change to params instead of file
         std::string output_folder = argv[4];
 
-        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path);
+        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, 2);
         ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
                                                     images_folder,
                                                     output_folder,
@@ -80,13 +79,13 @@ int main(int argc, char *argv[]) {
         std::string output_folder = argv[4];
         int next_image_idx = std::stoi(argv[5]);
             
-        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path);
+        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, next_image_idx);
         std::ifstream os(output_folder + "/reconstruction", std::ios::binary);
         cereal::PortableBinaryInputArchive iarchive(os);
         theia::Reconstruction recon;
         iarchive(recon);
         reconstruction_builder->SetReconstruction(recon);
-        reconstruction_builder->SetImageRetrieval(output_folder + "/image_retrieval", 2);
+        reconstruction_builder->SetImageRetrieval(output_folder + "/image_retrieval", next_image_idx);
         reconstruction_builder->SetViewGraph(output_folder + "/view_graph");
         reconstruction_builder->SetKeypoints(images_folder, image_names, next_image_idx);
         mvs_scene->Load(output_folder + "/scene.mvs");
@@ -108,7 +107,7 @@ int main(int argc, char *argv[]) {
         std::string output_folder = argv[5];
 
 
-        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path);
+        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, 2);
         std::ifstream os(output_folder + "/reconstruction", std::ios::binary);
         cereal::PortableBinaryInputArchive iarchive(os);
         theia::Reconstruction recon;
