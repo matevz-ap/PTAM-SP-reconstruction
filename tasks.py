@@ -24,7 +24,8 @@ def init_reconstruction_task(uuid):
     command = f"cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
-    numbers.pop(1)
+    if numbers: 
+        numbers.pop(1)
     return make_response(uuid, list(map(float, numbers)), "Initialization successful" in output)
     
 
