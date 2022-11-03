@@ -10,11 +10,13 @@ from rq import Queue
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
 from worker import conn
+from flasgger import Swagger, swag_from
 
 from tasks import generate_ptam_task, generate_ply_task, init_reconstruction_task, extend_reconstruction_task
 
 app = Flask(__name__)
 CORS(app)
+swagger = Swagger(app)
 
 q = Queue(connection=conn)
 
@@ -50,6 +52,7 @@ def initialize_reconstruction():
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
+@swag_from('swagger/extend_reconstruction.yml')
 def extend_reconstruction(uuid):
     if "image" not in request.files:
         return "Missing requred reques paramater: 'image' of type file", 400
@@ -89,6 +92,7 @@ def download_ptam(uuid):
     return send_file(f"./data/{uuid}/installer")
 
 @app.route("/results/<job_key>", methods=['GET'])
+@swag_from('swagger/redis_job_status.yml')
 def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)

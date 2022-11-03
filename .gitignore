@@ -20,3 +20,5 @@ _bak/
 sources/
 
 __pycache__
+
+env/

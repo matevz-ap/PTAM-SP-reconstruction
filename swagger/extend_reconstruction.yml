@@ -1,0 +1,16 @@
+Receives images and sends task to add image to reconstruction
+Returns task identificator to check task status
+---
+parameters:
+  - name: uuid
+    in: path
+    type: string
+    required: true
+definitions:
+  Uuid:
+    type: string
+responses:
+  200:
+    description: Sting identifing the redis task.
+    examples:
+      respone: "e729048a-e5e2-493c-9f49-f66f78c3993c"

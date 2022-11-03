@@ -4,3 +4,4 @@ rq
 Flask
 flask-cors
 pillow
+flasgger
