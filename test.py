@@ -33,7 +33,8 @@ for job in jobs:
 for uuid in uuids: # delete folders with reconstruction
     subprocess.run(f"rm -r ./data/{uuid}", shell=True)
 
-print(end - start)
+print("Skupno", end - start)
+print("Povrecje", sum([r["duration"]for r in recon]) / len(recon))
 plt.plot(range(0, len(recon)), [r["duration"]for r in recon], '-ok')
 plt.xlabel('Zaporedna inicializacija')
 plt.ylabel('Cas inicializacije (sekunde)')
