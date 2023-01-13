@@ -172,14 +172,10 @@ bool TheiaToMVS(const theia::Reconstruction &reconstruction,
         tmp_view->Camera().GetCalibrationMatrix(&K);
 
         // Normalize camera intrinsics
-        double scale = 1.0 / std::max(tmp_view->Camera().ImageWidth(), tmp_view->Camera().ImageHeight());
-        camera.K = K;
-        camera.K(0, 0) *= scale;
-        camera.K(1, 1) *= scale;
-        camera.K(0, 2) *= scale;
-        camera.K(1, 2) *= scale;
+        camera.K = MVS::Platform::Camera::ComposeK<REAL,REAL>(tmp_view->Camera().FocalLength(), tmp_view->Camera().FocalLength(), tmp_view->Camera().ImageWidth(), tmp_view->Camera().ImageHeight());
         camera.R = Eigen::Matrix3d::Identity();
         camera.C = Eigen::Vector3d::Zero();
+        camera.K = camera.GetScaledK(REAL(1)/MVS::Camera::GetNormalizationScale(tmp_view->Camera().ImageWidth(), tmp_view->Camera().ImageHeight()));
 
         // Define images and poses
         for (const auto& view_id : view_ids) {
