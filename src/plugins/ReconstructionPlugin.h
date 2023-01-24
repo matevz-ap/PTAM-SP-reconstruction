@@ -150,6 +150,7 @@ public:
     void remove_last_view_callback();
     void reset_reconstruction_callback();
 
+    void dense_reconstruction();
     void reconstruct_mesh_callback();
     void refine_mesh_callback();
     void texture_mesh_callback();

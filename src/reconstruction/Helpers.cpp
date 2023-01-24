@@ -190,6 +190,7 @@ bool TheiaToMVS(const theia::Reconstruction &reconstruction,
                 image.name = image_fullpath;
                 image.platformID = group_id;
                 image.cameraID = 0;
+                image.ID = static_cast<MVS::IIndex>(idx);
                 image.poseID = static_cast<uint32_t>(platform.poses.size());
                 image.width = static_cast<uint32_t>(view->Camera().ImageWidth());
                 image.height = static_cast<uint32_t>(view->Camera().ImageHeight());

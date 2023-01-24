@@ -139,6 +139,9 @@ bool ReconstructionPlugin::post_draw() {
 
     // Dense reconstruction
     if (ImGui::TreeNodeEx("Gosta rekonstrukcija", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::Button("Zgosti point cloud", ImVec2(-1, 0))) {
+            dense_reconstruction();
+        }
         if (ImGui::Button("Generiraj povrsino", ImVec2(-70, 0))) {
             reconstruct_mesh_callback();
         }
@@ -478,6 +481,45 @@ void ReconstructionPlugin::reset_reconstruction_callback() {
     viewer->selected_data_index = VIEWER_DATA_MESH;
     viewer->data().clear();
     log_stream_ << "Reconstruction reset" << std::endl;
+}
+
+void ReconstructionPlugin::dense_reconstruction() {
+    log_stream_ << std::endl;
+    log_stream_ << "Densifying point coloud ..." << std::endl;
+    auto time_begin = std::chrono::steady_clock::now();
+
+    MVS::OPTDENSE::init();
+    MVS::OPTDENSE::nResolutionLevel = 1;
+	MVS::OPTDENSE::nMaxResolution = 2560;
+	MVS::OPTDENSE::nMinResolution = 640;
+	MVS::OPTDENSE::nNumViews = 5;
+    mvs_scene_->DenseReconstruction();
+
+    auto time_end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> time_elapsed = time_end - time_begin;
+    log_stream_ << "Densify point cloud time: " << time_elapsed.count() << " s" << std::endl;
+
+    viewer->selected_data_index = VIEWER_DATA_POINT_CLOUD;
+    viewer->data().clear();
+    auto num_points = static_cast<int>(mvs_scene_->pointcloud.points.size());
+    Eigen::MatrixXd points(num_points, 3);
+    Eigen::MatrixXd colors(num_points, 3);
+
+    int i = 0;
+    for (const auto& point : mvs_scene_->pointcloud.points) {
+        points(i, 0) = point.x;
+        points(i, 1) = point.y;
+        points(i, 2) = point.z;
+
+        const auto&color = mvs_scene_->pointcloud.colors[i];
+        colors(i, 0) = color.r;
+        colors(i, 1) = color.g;
+        colors(i, 2) = color.b;
+
+        i++;
+    }
+    colors = colors / 255.0;
+    viewer->data().set_points(points, colors);
 }
 
 void ReconstructionPlugin::reconstruct_mesh_callback() {
