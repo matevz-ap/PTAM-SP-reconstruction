@@ -111,7 +111,7 @@ public:
         bool show_wireframe = false;
         char filename_buffer[64] = "filename";
         bool auto_ply = false;
-        bool auto_reconstruct = true;
+        bool auto_reconstruct = false;
         bool auto_compute_ppa = false;
     };
 
