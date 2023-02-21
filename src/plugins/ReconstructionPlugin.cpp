@@ -611,7 +611,9 @@ void ReconstructionPlugin::refine_mesh_callback() {
                     << mvs_scene_->mesh.vertices.GetSize() << " vertices, "
                     << mvs_scene_->mesh.faces.GetSize() << " faces." << std::endl;
 
-        set_mesh();
+        if (use_gui_) {
+            set_mesh();
+        }
     } else {
         log_stream_ << "Refine mesh failed: Mesh is empty." << std::endl;
     }
@@ -641,7 +643,9 @@ void ReconstructionPlugin::texture_mesh_callback() {
         auto time_end = std::chrono::steady_clock::now();
         std::chrono::duration<double> time_elapsed = time_end - time_begin;
         log_stream_ << "Texture mesh time: " << time_elapsed.count() << " s" << std::endl;
-        set_mesh();
+        if (use_gui_) {
+            set_mesh();
+        }
     } else {
         log_stream_ << "Texture mesh failed: Mesh is empty." << std::endl;
     }
