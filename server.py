@@ -4,7 +4,7 @@ from PIL import Image
 import shortuuid
 import subprocess
 
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, make_response
 from flask_cors import CORS
 from rq import Queue
 from rq.job import Job
@@ -12,10 +12,10 @@ from rq.exceptions import NoSuchJobError
 from worker import conn
 from flasgger import Swagger, swag_from
 
-from tasks import generate_ptam_task, generate_ply_task, init_reconstruction_task, extend_reconstruction_task
+from tasks import generate_ptam_task, generate_ply_task, init_reconstruction_task, extend_reconstruction_task, reconstruct_mesh_task, texture_task
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, support_credentials=True)
 swagger = Swagger(app)
 
 q = Queue(connection=conn)
@@ -67,6 +67,16 @@ def extend_reconstruction(uuid):
 
     return job.get_id()
 
+@app.route("/<uuid>/reconstruct_mesh", methods=["GET"])
+def reconstruct_mesh(uuid):
+    job = q.enqueue(reconstruct_mesh_task, uuid)
+    return job.get_id()
+
+@app.route("/<uuid>/texture", methods=["GET"])
+def texture(uuid):
+    job = q.enqueue(texture_task, uuid)
+    return job.get_id()
+
 @app.route("/<uuid>/generate/ply", methods=["GET"])
 def generate_ply(uuid):
     job = q.enqueue(generate_ply_task, uuid)
@@ -82,6 +92,11 @@ def download_ply(uuid):
     command = f"cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     subprocess.run(command, capture_output=True, shell=True)
     return send_file(f"./data/{uuid}/ply.ply")
+
+@app.route("/<uuid>/download/texture", methods=["GET"])
+def download_texture(uuid):
+    response = make_response(send_file(f"./data/{uuid}/ply.png"))
+    return response
 
 @app.route("/<uuid>/download/mvs", methods=["GET"])
 def download_mvs(uuid):
