@@ -1,13 +1,5 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <imgui/imgui.h>
-#include <imgui_impl_glfw_gl3.h>
-#include <igl/readOFF.h>
-#include <igl/opengl/glfw/Viewer.h>
-
 #include "reconstruction/Helpers.h"
 #include "reconstruction/RealtimeReconstructionBuilder.h"
-#include "nbv/QualityMeasure.h"
 #include "plugins/ReconstructionPlugin.h"
 #include "plugins/EditMeshPlugin.h"
 #include "plugins/NextBestViewPlugin.h"
@@ -36,6 +28,28 @@ std::tuple<std::shared_ptr<RealtimeReconstructionBuilder>,
     auto quality_measure = std::make_shared<QualityMeasure>(mvs_scene);
     ReconstructionPlugin::Parameters reconstruction_parameters;
     return {reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names};
+}
+
+ReconstructionPlugin load_reconstruction(const std::string& images_folder, const std::string& output_folder, const std::string& calibration_path, int num_of_images) {
+    auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, 2);
+
+    std::ifstream os(output_folder + "/reconstruction", std::ios::binary);
+    cereal::PortableBinaryInputArchive iarchive(os);
+    theia::Reconstruction recon;
+    iarchive(recon);
+    reconstruction_builder->SetReconstruction(recon);
+    reconstruction_builder->SetImageRetrieval(output_folder + "/image_retrieval", 2);
+    reconstruction_builder->SetViewGraph(output_folder + "/view_graph");
+    mvs_scene->Load(output_folder + "/scene.mvs");
+
+    return ReconstructionPlugin(reconstruction_parameters,
+                                images_folder,
+                                "",
+                                image_names,
+                                reconstruction_builder,
+                                mvs_scene,
+                                quality_measure,
+                                false);
 }
 
 int main(int argc, char *argv[]) {
@@ -105,32 +119,23 @@ int main(int argc, char *argv[]) {
         std::string images_folder = argv[3];
         std::string calibration_path = argv[4];
         std::string output_folder = argv[5];
-
-
-        auto [reconstruction_builder, mvs_scene, quality_measure, reconstruction_parameters, image_names] = init_params(images_folder, calibration_path, 2);
-        std::ifstream os(output_folder + "/reconstruction", std::ios::binary);
-        cereal::PortableBinaryInputArchive iarchive(os);
-        theia::Reconstruction recon;
-        iarchive(recon);
-        reconstruction_builder->SetReconstruction(recon);
-        reconstruction_builder->SetImageRetrieval(output_folder + "/image_retrieval", 2);
-        reconstruction_builder->SetViewGraph(output_folder + "/view_graph");
-        mvs_scene->Load(output_folder + "/scene.mvs");
-        ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
-                                                    images_folder,
-                                                    "",
-                                                    image_names,
-                                                    reconstruction_builder,
-                                                    mvs_scene,
-                                                    quality_measure,
-                                                    false);
+        ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
+        
         if (argv[2] == std::string("ply")) {
             reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
         }
-        else if (argv[2] == std::string("ptam")) {
-            PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_builder, mvs_scene);
-            ptam_export_plugin.export_scene();
-        }
+        // else if (argv[2] == std::string("ptam")) {
+        //     PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_builder, mvs_scene);
+        //     ptam_export_plugin.export_scene();
+        // }
+    }
+    else if (argv[1] == std::string("texture")) {
+        std::string images_folder = argv[2];
+        std::string calibration_path = argv[3];
+        std::string output_folder = argv[4];
+        ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
+        reconstruction_plugin.texture_mesh_callback();
+        reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
     }
     return 0;
 }
