@@ -27,15 +27,17 @@ def save_file(uuid, file):
     num_of_images = _number_of_images(uuid)
     file.save(f"data/{uuid}/images/{num_of_images}.jpg")
 
-def get_camera_settings(uuid, image):
+def get_camera_settings(uuid, image, focal):
     exif = image.getexif().get_ifd(0x8769)
     
     with open(f"data/{uuid}/camera_settings.txt", 'a') as file:
-        file.write(f"{exif[40962]}\n") # width
-        file.write(f"{exif[40963]}\n") # heigt
-        file.write(f"{exif[37386] * 1000}\n" if exif[37386] > 0 else "4100\n") # focal length
-        file.write(f"{exif[40962] / 2}\n") # height / 2
-        file.write(f"{exif[40963] / 2}\n") # width / 2
+        image_w = exif.get(40962, 0)
+        image_h = exif.get(40963, 0)
+        file.write(f"{image_w}\n") # width
+        file.write(f"{image_h}\n") # heigt
+        file.write(f"{focal}\n") # width / 2
+        file.write(f"{image_w / 2}\n") # width / 2
+        file.write(f"{image_h / 2}\n") # width / 2
         file.write("1.0\n") # aspect ratio
         file.write("0.0\n\n") # skew
 
@@ -48,7 +50,8 @@ def initialize_reconstruction():
     image = request.files['image']
     os.system(f"mkdir -p data/{uuid}/images")
     save_file(uuid, image)
-    get_camera_settings(uuid, Image.open(image))
+    focal = request.form.get("focal", 4200)
+    get_camera_settings(uuid, Image.open(image), focal or 4200)
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
@@ -87,11 +90,20 @@ def generate_ptam(uuid):
     job = q.enqueue(generate_ptam_task, uuid)
     return job.get_id()
 
+@app.route("/<uuid>/download_or_generate/ply", methods=["GET"])
+def download_or_generate_ply(uuid):
+    try:
+        return send_file(f"./data/{uuid}/ply.ply")
+    except FileNotFoundError:
+        job = q.enqueue(texture_task, uuid)
+        return job.get_id(), 404
+
 @app.route("/<uuid>/download/ply", methods=["GET"])
 def download_ply(uuid):
-    command = f"cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
-    subprocess.run(command, capture_output=True, shell=True)
-    return send_file(f"./data/{uuid}/ply.ply")
+    try:
+        return send_file(f"./data/{uuid}/ply.ply")
+    except FileNotFoundError:
+        return "No ply file", 404
 
 @app.route("/<uuid>/download/texture", methods=["GET"])
 def download_texture(uuid):
