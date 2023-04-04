@@ -50,8 +50,8 @@ def initialize_reconstruction():
     image = request.files['image']
     os.system(f"mkdir -p data/{uuid}/images")
     save_file(uuid, image)
-    focal = request.form.get("focal", 4200)
-    get_camera_settings(uuid, Image.open(image), focal or 4200)
+    focal = request.form.get("focal", 6800)
+    get_camera_settings(uuid, Image.open(image), focal or 6800)
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
@@ -117,6 +117,10 @@ def download_mvs(uuid):
 @app.route("/<uuid>/download/ptam", methods=["GET"])
 def download_ptam(uuid):
     return send_file(f"./data/{uuid}/installer")
+
+@app.route("/online", methods=["GET"])
+def online():
+    return "OK", 200
 
 @app.route("/results/<job_key>", methods=['GET'])
 @swag_from('swagger/redis_job_status.yml')
