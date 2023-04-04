@@ -118,6 +118,10 @@ def download_mvs(uuid):
 def download_ptam(uuid):
     return send_file(f"./data/{uuid}/installer")
 
+@app.route("/<uuid>/file_availability/<file_name>", methods=["GET"])
+def file_availability(uuid, file_name):
+    return json.dumps(os.path.exists(f"./data/{uuid}/{file_name}"))
+
 @app.route("/online", methods=["GET"])
 def online():
     return "OK", 200
