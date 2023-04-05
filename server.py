@@ -28,16 +28,15 @@ def save_file(uuid, file):
     file.save(f"data/{uuid}/images/{num_of_images}.jpg")
 
 def get_camera_settings(uuid, image, focal):
-    exif = image.getexif().get_ifd(0x8769)
+    # exif = image.getexif().get_ifd(0x8769)
     
     with open(f"data/{uuid}/camera_settings.txt", 'a') as file:
-        image_w = exif.get(40962, 0)
-        image_h = exif.get(40963, 0)
-        file.write(f"{image_w}\n") # width
-        file.write(f"{image_h}\n") # heigt
-        file.write(f"{focal}\n") # width / 2
-        file.write(f"{image_w / 2}\n") # width / 2
-        file.write(f"{image_h / 2}\n") # width / 2
+        width, height = image.size
+        file.write(f"{width}\n")
+        file.write(f"{height}\n")
+        file.write(f"{focal}\n")
+        file.write(f"{width / 2}\n")
+        file.write(f"{height / 2}\n")
         file.write("1.0\n") # aspect ratio
         file.write("0.0\n\n") # skew
 
@@ -50,8 +49,8 @@ def initialize_reconstruction():
     image = request.files['image']
     os.system(f"mkdir -p data/{uuid}/images")
     save_file(uuid, image)
-    focal = request.form.get("focal", 6800)
-    get_camera_settings(uuid, Image.open(image), focal or 6800)
+    focal = request.form.get("focal", 3000)
+    get_camera_settings(uuid, Image.open(image), focal or 3000)
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
