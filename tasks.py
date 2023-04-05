@@ -23,7 +23,7 @@ def init_reconstruction_task(uuid):
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     print(output)
-    if numbers: 
+    if len(numbers) > 1: 
         numbers.pop(1)
     return make_response(uuid, list(map(float, numbers)), "Initialization successful" in output)
     
@@ -62,5 +62,10 @@ def generate_ply_task(uuid):
 
 
 def generate_ptam_task(uuid):
-    command = f"cd build/; ./reconstruction_cli download ptam ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
+    command = f"cd build/; ./reconstruction_cli ptam ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
+    print(output)
+    return json.dumps({
+            "finished": True,
+            "reconstruction_id": uuid,
+        })
