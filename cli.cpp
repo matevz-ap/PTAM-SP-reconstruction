@@ -124,10 +124,6 @@ int main(int argc, char *argv[]) {
         if (argv[2] == std::string("ply")) {
             reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
         }
-        // else if (argv[2] == std::string("ptam")) {
-        //     PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_builder, mvs_scene);
-        //     ptam_export_plugin.export_scene();
-        // }
     }
     else if (argv[1] == std::string("texture")) {
         std::string images_folder = argv[2];
@@ -136,6 +132,14 @@ int main(int argc, char *argv[]) {
         ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
         reconstruction_plugin.texture_mesh_callback();
         reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
+    }
+    else if (argv[1] == std::string("ptam")) {
+        std::string images_folder = argv[2];
+        std::string calibration_path = argv[3];
+        std::string output_folder = argv[4];
+        ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
+        PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_plugin.get_reconstruction_builder(), reconstruction_plugin.get_mvs_scene_());
+        ptam_export_plugin.export_scene();
     }
     return 0;
 }
