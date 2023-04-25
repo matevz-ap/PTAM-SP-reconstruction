@@ -49,8 +49,8 @@ def initialize_reconstruction():
     image = request.files['image']
     os.system(f"mkdir -p data/{uuid}/images")
     save_file(uuid, image)
-    focal = request.form.get("focal", 3000)
-    get_camera_settings(uuid, Image.open(image), focal or 3000)
+    focal = request.form.get("focal", 6000)
+    get_camera_settings(uuid, Image.open(image), focal or 6000)
     return uuid
 
 @app.route("/<uuid>/extend", methods=["POST"])
