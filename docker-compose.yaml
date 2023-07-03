@@ -1,24 +1,8 @@
 version: '3.8'
 services:
-  server:
-    build: .
-    command: bash -c "cd /app && python3 server.py"
-    volumes:
-      - ./data:/app/data
-      - ./server.py:/app/server.py
-      - ./tasks.py:/app/tasks.py
-    ports:
-      - '5000:5000'
-    deploy:
-      resources:
-        reservations:
-          devices:
-              - capabilities: [gpu]
   worker:
     build: .
     command: bash -c "cd /app && python3 worker.py"
-    depends_on:
-      - redis
     volumes:
       - ./data:/app/data
       - ./tasks.py:/app/tasks.py
@@ -28,7 +12,3 @@ services:
         reservations:
           devices:
               - capabilities: [gpu]
-  redis:
-    image: redis
-    ports:
-       - '5379:5379' 
