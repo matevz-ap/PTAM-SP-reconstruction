@@ -3,8 +3,18 @@ import subprocess
 import re
 import requests
 import zipfile
+import shutil
 
 server_url = "http://localhost:5000"
+
+def send_files(uuid):
+    folder_path = f"./data/{uuid}"
+    shutil.make_archive(folder_path, 'zip', folder_path)
+
+    with open(f"{folder_path}.zip", 'rb') as f:
+        data = f.read()
+    requests.post(f"{server_url}/{uuid}/upload", data=data, headers={'Content-Type': 'application/zip'})
+
 
 def download_files(uuid):
     response = requests.get(f"{server_url}/{uuid}/download")
@@ -70,6 +80,7 @@ def texture_task(uuid):
     download_files(uuid)
     command = f"cd build/; ./reconstruction_cli texture ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
+    send_files(uuid)
     return json.dumps({
             "finished": True,
             "reconstruction_id": uuid,
