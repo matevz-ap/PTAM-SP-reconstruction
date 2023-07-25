@@ -141,5 +141,13 @@ int main(int argc, char *argv[]) {
         PTAMExportPlugin ptam_export_plugin(output_folder, reconstruction_plugin.get_reconstruction_builder(), reconstruction_plugin.get_mvs_scene_());
         ptam_export_plugin.export_scene();
     }
+    else if (argv[1] == std::string("refine")) {
+        std::string images_folder = argv[2];
+        std::string calibration_path = argv[3];
+        std::string output_folder = argv[4];
+        ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
+        reconstruction_plugin.refine_mesh_callback();
+        reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
+    }
     return 0;
 }
