@@ -147,6 +147,7 @@ int main(int argc, char *argv[]) {
         std::string output_folder = argv[4];
         ReconstructionPlugin reconstruction_plugin = load_reconstruction(images_folder, output_folder, calibration_path, 2);
         reconstruction_plugin.refine_mesh_callback();
+        reconstruction_plugin.texture_mesh_callback();
         reconstruction_plugin.save_scene_as_ply(output_folder + "ply.ply");
     }
     return 0;

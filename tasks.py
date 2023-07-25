@@ -108,6 +108,7 @@ def generate_ptam_task(uuid):
         })
 
 def refine_mesh_task(uuid):
+    download_files(uuid)
     command = f"cd build/; ./reconstruction_cli refine ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
