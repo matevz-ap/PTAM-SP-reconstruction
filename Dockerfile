@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-devel-ubuntu22.04
+FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive  
 
 COPY packages.txt /tmp/packages.txt
@@ -23,7 +23,7 @@ RUN cd colmap && \
 	make install
 
 RUN git clone https://github.com/cdcseacave/VCG.git vcglib
-RUN git clone https://github.com/cdcseacave/openMVS.git
+RUN git clone https://github.com/cdcseacave/openMVS.git && cd openMVS && git checkout 3b2bb84 
 
 RUN mkdir openMVS_build && \
     cd openMVS_build && \

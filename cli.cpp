@@ -1,8 +1,6 @@
 #include "reconstruction/Helpers.h"
 #include "reconstruction/RealtimeReconstructionBuilder.h"
 #include "plugins/ReconstructionPlugin.h"
-#include "plugins/EditMeshPlugin.h"
-#include "plugins/NextBestViewPlugin.h"
 #include "plugins/PTAMExportPlugin.h"
 
 #include <string>
