@@ -5,8 +5,9 @@ import requests
 from rq import Worker, Connection
 
 listen = ['default']
-# conn = redis.from_url("redis://redis:6379/0")
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+REDIS_HOST = "192.168.64.107"
+REDIS_PORT = '6379' 
+redis_url = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 conn = redis.from_url(redis_url)
 
 if __name__ == '__main__':

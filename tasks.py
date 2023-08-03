@@ -5,7 +5,8 @@ import requests
 import zipfile
 import shutil
 
-server_url = "http://localhost:5000"
+# server_url = "http://localhost:5000"
+server_url = "https://testing-reconstruction-drainn.loca.lt"
 
 def send_files(uuid):
     folder_path = f"./data/{uuid}"
