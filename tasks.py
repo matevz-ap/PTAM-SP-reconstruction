@@ -30,6 +30,9 @@ def download_files(uuid):
     with zipfile.ZipFile(f"./data/{uuid}.zip", 'r') as zip_ref:
         zip_ref.extractall(f"./data/{uuid}")
     
+def delete_files(uuid):
+    subprocess.run(f"rm -r ./data/{uuid}", shell=True)
+    subprocess.run(f"rm -r ./data/{uuid}.zip", shell=True)
 
 def make_response(uuid, numbers, success, output=None):
     try:
@@ -56,6 +59,7 @@ def init_reconstruction_task(uuid):
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     print(output)
+    delete_files(uuid)
     if len(numbers) > 1: 
         numbers.pop(1)
     return make_response(uuid, list(map(float, numbers)), "Initialization successful" in output, output)
@@ -66,6 +70,7 @@ def extend_reconstruction_task(uuid, number_of_images):
     command = f"cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid} {number_of_images - 1}"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
+    delete_files(uuid)
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     return make_response(uuid, list(map(float, numbers)), "Extend successful" in output, output)
 
@@ -82,6 +87,7 @@ def texture_task(uuid):
     command = f"cd build/; ./reconstruction_cli texture ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     send_files(uuid)
+    delete_files(uuid)
     return json.dumps({
             "finished": True,
             "reconstruction_id": uuid,
@@ -92,6 +98,7 @@ def generate_ply_task(uuid):
     download_files(uuid)
     command = f"cd build/; ./reconstruction_cli download ply ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
+    delete_files(uuid)
     return {
         "succes": True,
         "reconstruction_id": uuid,
@@ -103,6 +110,7 @@ def generate_ptam_task(uuid):
     command = f"cd build/; ./reconstruction_cli ptam ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
+    delete_files(uuid)
     return json.dumps({
             "finished": True,
             "reconstruction_id": uuid,
@@ -114,6 +122,7 @@ def refine_mesh_task(uuid):
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
     send_files(uuid)
+    delete_files(uuid)
     return json.dumps({
             "finished": True,
             "reconstruction_id": uuid,
