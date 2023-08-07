@@ -6,7 +6,8 @@ import zipfile
 import shutil
 
 # server_url = "http://localhost:5000"
-server_url = "https://testing-reconstruction-drainn.loca.lt"
+# server_url = "https://testing-reconstruction-drainn.loca.lt"
+server_url = "http://192.168.64.107:5000"
 
 def send_files(uuid):
     folder_path = f"./data/{uuid}"
@@ -59,6 +60,7 @@ def init_reconstruction_task(uuid):
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     print(output)
+    send_files(uuid)
     delete_files(uuid)
     if len(numbers) > 1: 
         numbers.pop(1)
@@ -70,6 +72,7 @@ def extend_reconstruction_task(uuid, number_of_images):
     command = f"cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid} {number_of_images - 1}"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
+    send_files(uuid)
     delete_files(uuid)
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     return make_response(uuid, list(map(float, numbers)), "Extend successful" in output, output)
