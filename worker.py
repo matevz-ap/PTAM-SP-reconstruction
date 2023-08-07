@@ -1,7 +1,4 @@
-import os
-
 import redis
-import requests
 from rq import Worker, Connection
 
 listen = ['default']
