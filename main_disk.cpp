@@ -5,8 +5,8 @@
 #include <igl/readOFF.h>
 #include <igl/opengl/glfw/Viewer.h>
 
-#include "reconstruction/Helpers.h"
 #include "reconstruction/RealtimeReconstructionBuilder.h"
+#include "reconstruction/Helpers.h"
 #include "nbv/QualityMeasure.h"
 #include "plugins/ReconstructionPlugin.h"
 #include "plugins/EditMeshPlugin.h"
