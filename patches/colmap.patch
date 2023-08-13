@@ -1,0 +1,56 @@
+diff --git a/src/util/alignment.h b/src/util/alignment.h
+index ff292e4f..5c2f875c 100644
+--- a/src/util/alignment.h
++++ b/src/util/alignment.h
+@@ -79,19 +79,19 @@
+   };                                                                       \
+   }  // namespace std
+ 
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector2d)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector4d)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector4f)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix2d)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix2f)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix4d)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix4f)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Affine3d)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Affine3f)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Quaterniond)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Quaternionf)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix<float, 3, 4>)
+-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix<double, 3, 4>)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector2d)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector4d)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Vector4f)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix2d)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix2f)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix4d)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix4f)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Affine3d)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Affine3f)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Quaterniond)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Quaternionf)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix<float, 3, 4>)
++// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION_CUSTOM(Eigen::Matrix<double, 3, 4>)
+ 
+ #define EIGEN_STL_UMAP(KEY, VALUE)                                   \
+   std::unordered_map<KEY, VALUE, std::hash<KEY>, std::equal_to<KEY>, \
+diff --git a/src/util/types.h b/src/util/types.h
+index 18ebddd3..1196c85c 100755
+--- a/src/util/types.h
++++ b/src/util/types.h
+@@ -104,6 +104,7 @@ const point3D_t kInvalidPoint3DId = std::numeric_limits<point3D_t>::max();
+ 
+ // This file provides specializations of the templated hash function for
+ // custom types. These are used for comparison in unordered sets/maps.
++#ifndef COLMAP_DONT_SPECIALIZE_HASH
+ namespace std {
+ 
+ // Hash function specialization for uint32_t pairs, e.g., image_t or camera_t.
+@@ -117,5 +118,5 @@ struct hash<std::pair<uint32_t, uint32_t>> {
+ };
+ 
+ }  // namespace std
+-
++#endif  // COLMAP_DONT_SPECIALIZE_HASH
+ #endif  // COLMAP_SRC_UTIL_TYPES_H_
