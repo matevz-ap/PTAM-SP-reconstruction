@@ -1,5 +1,5 @@
-#include "reconstruction/Helpers.h"
 #include "reconstruction/RealtimeReconstructionBuilder.h"
+#include "reconstruction/Helpers.h"
 #include "plugins/ReconstructionPlugin.h"
 #include "plugins/PTAMExportPlugin.h"
 
