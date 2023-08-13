@@ -13,14 +13,16 @@ RUN cd TheiaSfM && \
     make -j2 && \
     make install
 
-ENV CUDA_ARCHS "Pascal"
-RUN git clone https://github.com/matevz-ap/colmap.git
+ADD ./patches/colmap.patch /tmp/colmap.patch
+RUN git clone https://github.com/colmap/colmap
 RUN cd colmap && \
-	mkdir build && \
+    git checkout 3.7 && \
+    git apply /tmp/colmap.patch && \
+    mkdir build && \
 	cd build && \
-	cmake .. -DCUDA_ARCHS="${CUDA_ARCHS}" &&\
-	make -j4 && \
-	make install
+	cmake .. && \
+	make -j3 && \
+    make install
 
 RUN git clone https://github.com/cdcseacave/VCG.git vcglib
 RUN git clone https://github.com/cdcseacave/openMVS.git && cd openMVS && git checkout 3b2bb84 
