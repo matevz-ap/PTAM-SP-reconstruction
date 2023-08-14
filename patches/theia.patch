@@ -1,0 +1,303 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 575271c..7f38b65 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,7 +32,7 @@
+ # Please contact the author of this library if you have any questions.
+ # Author: Chris Sweeney (sweeney.chris.m@gmail.com)
+ 
+-cmake_minimum_required(VERSION 2.8.3)
++cmake_minimum_required(VERSION 3.10)
+ if (COMMAND cmake_policy)
+   cmake_policy(SET CMP0003 NEW)
+ endif (COMMAND cmake_policy)
+diff --git a/cmake/OptimizeTheiaCompilerFlags.cmake b/cmake/OptimizeTheiaCompilerFlags.cmake
+index 39f93bf..0a6e30b 100644
+--- a/cmake/OptimizeTheiaCompilerFlags.cmake
++++ b/cmake/OptimizeTheiaCompilerFlags.cmake
+@@ -127,12 +127,12 @@ macro(OptimizeTheiaCompilerFlags)
+     endif ()
+   endif (CMAKE_BUILD_TYPE STREQUAL "Release")
+ 
+-  # Set c++ standard to c++11
++  # Set c++ standard to c++14
+   if (NOT MSVC)
+     include(CheckCXXCompilerFlag)
+-    check_cxx_compiler_flag("-std=c++11" COMPILER_HAS_CXX11_FLAG)
+-    if (COMPILER_HAS_CXX11_FLAG)
+-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++    check_cxx_compiler_flag("-std=c++14" COMPILER_HAS_CXX14_FLAG)
++    if (COMPILER_HAS_CXX14_FLAG)
++      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+       if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+ 	# Mac OS X before Mavericks uses libstdc++ by default but does not support
+ 	# c++11. Force it to use libc++.
+@@ -140,9 +140,9 @@ macro(OptimizeTheiaCompilerFlags)
+ 	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+ 	endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+       endif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-    else (COMPILER_HAS_CXX11_FLAG)
+-      message(FATAL_ERROR "A compiler with C++11 support is required for Theia.")
+-    endif (COMPILER_HAS_CXX11_FLAG)
++    else (COMPILER_HAS_CXX14_FLAG)
++      message(FATAL_ERROR "A compiler with C++14 support is required for Theia.")
++    endif (COMPILER_HAS_CXX14_FLAG)
+   endif (NOT MSVC)
+ 
+   # Check for the thread_local keyword. If it cannot be used, set the macro to
+diff --git a/cmake/TheiaConfig.cmake.in b/cmake/TheiaConfig.cmake.in
+index e20d576..f9f162b 100644
+--- a/cmake/TheiaConfig.cmake.in
++++ b/cmake/TheiaConfig.cmake.in
+@@ -43,7 +43,7 @@ macro(THEIA_REPORT_NOT_FOUND REASON_MSG)
+   # use the camelcase library name, not uppercase.
+   if (Theia_FIND_QUIETLY)
+     message(STATUS "Failed to find Theia - " ${REASON_MSG} ${ARGN})
+-  else (Theia_FIND_REQUIRED)
++  elseif (Theia_FIND_REQUIRED)
+     message(FATAL_ERROR "Failed to find Theia - " ${REASON_MSG} ${ARGN})
+   else()
+     # Neither QUIETLY nor REQUIRED, use SEND_ERROR which emits an error
+diff --git a/libraries/akaze/cmake/OptimizeCompilerFlags.cmake b/libraries/akaze/cmake/OptimizeCompilerFlags.cmake
+index 6fd793d..9605bb0 100644
+--- a/libraries/akaze/cmake/OptimizeCompilerFlags.cmake
++++ b/libraries/akaze/cmake/OptimizeCompilerFlags.cmake
+@@ -95,22 +95,22 @@ macro(OptimizeCompilerFlags)
+     endif ()
+   endif (CMAKE_BUILD_TYPE STREQUAL "Release")
+ 
+-  # Set c++ standard to c++11
++  # Set c++ standard to c++14
+   if (NOT MSVC)
+     include(CheckCXXCompilerFlag)
+-    check_cxx_compiler_flag("-std=c++11" COMPILER_HAS_CXX11_FLAG)
+-    if (COMPILER_HAS_CXX11_FLAG)
+-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++    check_cxx_compiler_flag("-std=c++14" COMPILER_HAS_CXX14_FLAG)
++    if (COMPILER_HAS_CXX14_FLAG)
++      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+       if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+ 	# Mac OS X before Mavericks uses libstdc++ by default but does not support
+-	# c++11. Force it to use libc++.
++	# c++14. Force it to use libc++.
+ 	if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+ 	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+ 	endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+       endif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-    else (COMPILER_HAS_CXX11_FLAG)
+-      message(FATAL_ERROR "A compiler with C++11 support is required for Akaze.")
+-    endif (COMPILER_HAS_CXX11_FLAG)
++    else (COMPILER_HAS_CXX14_FLAG)
++      message(FATAL_ERROR "A compiler with C++14 support is required for Akaze.")
++    endif (COMPILER_HAS_CXX14_FLAG)
+   endif (NOT MSVC)
+ 
+   set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${AKAZE_CXX_FLAGS}")
+diff --git a/libraries/akaze/src/nldiffusion_functions.cpp b/libraries/akaze/src/nldiffusion_functions.cpp
+index 02604ec..a55460b 100644
+--- a/libraries/akaze/src/nldiffusion_functions.cpp
++++ b/libraries/akaze/src/nldiffusion_functions.cpp
+@@ -222,8 +222,10 @@ void halfsample_image(const RowMatrixXf& src, RowMatrixXf& dst) {
+ 
+   // Do the whole resampling in one pass by using neighboring values. First, we
+   // compute the borders.
+-  const double x_kernel_size = static_cast<double>(src.cols()) / dst.cols();
+-  const double y_kernel_size = static_cast<double>(src.rows()) / dst.rows();
++  // const double x_kernel_size = static_cast<double>(src.cols()) / dst.cols();
++  const int x_kernel_size = static_cast<double>(src.cols()) / dst.cols();
++  // const double y_kernel_size = static_cast<double>(src.rows()) / dst.rows();
++  const int y_kernel_size = static_cast<double>(src.rows()) / dst.rows();
+ 
+   // Do simple linear interpolation.
+   if (x_kernel_size == 2 && y_kernel_size == 2) {
+@@ -237,8 +239,10 @@ void halfsample_image(const RowMatrixXf& src, RowMatrixXf& dst) {
+     return;
+   }
+ 
+-  const double x_kernel_clamped_size = static_cast<int>(ceil(x_kernel_size));
+-  const double y_kernel_clamped_size = static_cast<int>(ceil(y_kernel_size));
++  // const double x_kernel_clamped_size = static_cast<int>(ceil(x_kernel_size));
++  const int x_kernel_clamped_size = static_cast<int>(ceil(static_cast<double>(src.cols()) / dst.cols()));
++  // const double y_kernel_clamped_size = static_cast<int>(ceil(y_kernel_size));
++  const int y_kernel_clamped_size = static_cast<int>(ceil(static_cast<double>(src.rows()) / dst.rows()));
+ 
+   // Set up precomputed factor matrices.
+   Eigen::RowVectorXf x_kernel_mul(static_cast<int>(x_kernel_clamped_size)),
+diff --git a/libraries/cereal/CMakeLists.txt b/libraries/cereal/CMakeLists.txt
+index 2bedd43..0760549 100755
+--- a/libraries/cereal/CMakeLists.txt
++++ b/libraries/cereal/CMakeLists.txt
+@@ -9,10 +9,10 @@ endif()
+ if(NOT MSVC)
+     set(CMAKE_CXX_FLAGS "-Wall -Werror -g -Wextra -Wshadow -pedantic ${CMAKE_CXX_FLAGS}")
+     if(CMAKE_VERSION VERSION_LESS 3.1)
+-        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
++        set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
+     else()
+         if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD STREQUAL "98")
+-            set(CMAKE_CXX_STANDARD 11)
++            set(CMAKE_CXX_STANDARD 14)
+         endif()
+         set(CMAKE_CXX_STANDARD_REQUIRED ON)
+     endif()
+diff --git a/libraries/optimo/CMakeLists.txt b/libraries/optimo/CMakeLists.txt
+index 80f5e5f..ca399eb 100644
+--- a/libraries/optimo/CMakeLists.txt
++++ b/libraries/optimo/CMakeLists.txt
+@@ -39,23 +39,23 @@ endif (COMMAND cmake_policy)
+ project(optimo C CXX)
+ include_directories(${PROJECT_SOURCE_DIR})
+ 
+-# C++11
+-# Compiler-specific C++11 activation.
++# C++14
++# Compiler-specific C++14 activation.
+ if (NOT MSVC)
+   include(CheckCXXCompilerFlag)
+-  check_cxx_compiler_flag("-std=c++11" COMPILER_HAS_CXX11_FLAG)
+-  if (COMPILER_HAS_CXX11_FLAG)
+-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++  check_cxx_compiler_flag("-std=c++14" COMPILER_HAS_CXX14_FLAG)
++  if (COMPILER_HAS_CXX14_FLAG)
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+       # Mac OS X before Mavericks uses libstdc++ by default but does not support
+-      # c++11. Force it to use libc++.
++      # c++14. Force it to use libc++.
+       if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+ 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+       endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+     endif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-  else (COMPILER_HAS_CXX11_FLAG)
+-    message(FATAL_ERROR "A compiler with C++11 support is required for Theia.")
+-  endif (COMPILER_HAS_CXX11_FLAG)
++  else (COMPILER_HAS_CXX14_FLAG)
++    message(FATAL_ERROR "A compiler with C++14 support is required for Theia.")
++  endif (COMPILER_HAS_CXX14_FLAG)
+ endif (NOT MSVC)
+ 
+ # Showing the C++ compiler flags
+diff --git a/libraries/statx/CMakeLists.txt b/libraries/statx/CMakeLists.txt
+index 23b9e49..89173c4 100644
+--- a/libraries/statx/CMakeLists.txt
++++ b/libraries/statx/CMakeLists.txt
+@@ -41,23 +41,23 @@ include_directories(${PROJECT_SOURCE_DIR})
+ 
+ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/libraries/statx/cmake/Modules/")
+ 
+-# C++11
+-# Compiler-specific C++11 activation.
++# C++14
++# Compiler-specific C++14 activation.
+ if (NOT MSVC)
+   include(CheckCXXCompilerFlag)
+-  check_cxx_compiler_flag("-std=c++11" COMPILER_HAS_CXX11_FLAG)
+-  if (COMPILER_HAS_CXX11_FLAG)
+-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++  check_cxx_compiler_flag("-std=c++14" COMPILER_HAS_CXX14_FLAG)
++  if (COMPILER_HAS_CXX14_FLAG)
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+       # Mac OS X before Mavericks uses libstdc++ by default but does not support
+-      # c++11. Force it to use libc++.
++      # c++14. Force it to use libc++.
+       if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+ 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+       endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+     endif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+-  else (COMPILER_HAS_CXX11_FLAG)
+-    message(FATAL_ERROR "A compiler with C++11 support is required for Theia.")
+-  endif (COMPILER_HAS_CXX11_FLAG)
++  else (COMPILER_HAS_CXX14_FLAG)
++    message(FATAL_ERROR "A compiler with C++14 support is required for Theia.")
++  endif (COMPILER_HAS_CXX14_FLAG)
+ endif (NOT MSVC)
+ message("-- CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+ 
+diff --git a/src/theia/sfm/colorize_reconstruction.cc b/src/theia/sfm/colorize_reconstruction.cc
+index 4cd169a..995895d 100644
+--- a/src/theia/sfm/colorize_reconstruction.cc
++++ b/src/theia/sfm/colorize_reconstruction.cc
+@@ -57,7 +57,6 @@ void ExtractColorsFromImage(
+     const View& view,
+     std::unordered_map<TrackId, Eigen::Vector3f>* colors,
+     std::mutex* mutex_lock) {
+-  LOG(INFO) << "Extracting color for features in image: " << image_file;
+   const FloatImage image(image_file);
+ 
+   const auto& track_ids = view.TrackIds();
+diff --git a/src/theia/sfm/view.cc b/src/theia/sfm/view.cc
+index fdf76eb..891fa45 100644
+--- a/src/theia/sfm/view.cc
++++ b/src/theia/sfm/view.cc
+@@ -34,6 +34,7 @@
+ 
+ #include "theia/sfm/view.h"
+ 
++#include <cassert>
+ #include <string>
+ #include <unordered_set>
+ #include <unordered_map>
+@@ -96,12 +97,24 @@ const Feature* View::GetFeature(const TrackId track_id) const {
+   return FindOrNull(features_, track_id);
+ }
+ 
++const TrackId* View::GetTrackId(const Feature& feature) const {
++  return FindOrNull(tracks_, feature);
++}
++
+ void View::AddFeature(const TrackId track_id, const Feature& feature) {
+   features_[track_id] = feature;
++  tracks_[feature] = track_id;
++  assert(features_.size() == tracks_.size());
+ }
+ 
+ bool View::RemoveFeature(const TrackId track_id) {
+-  return features_.erase(track_id) > 0;
++  const Feature feature = FindOrDie(features_, track_id);
++
++  int result_features = features_.erase(track_id);
++  int result_tracks = tracks_.erase(feature);
++  assert(features_.size() == tracks_.size());
++
++  return (result_features > 0) && (result_tracks > 0);
+ }
+ 
+ }  // namespace theia
+diff --git a/src/theia/sfm/view.h b/src/theia/sfm/view.h
+index cd231df..1f93ad3 100644
+--- a/src/theia/sfm/view.h
++++ b/src/theia/sfm/view.h
+@@ -48,6 +48,7 @@
+ #include "theia/sfm/camera_intrinsics_prior.h"
+ #include "theia/sfm/feature.h"
+ #include "theia/sfm/types.h"
++#include "theia/util/hash.h"
+ 
+ namespace theia {
+ 
+@@ -79,6 +80,7 @@ class View {
+   std::vector<TrackId> TrackIds() const;
+ 
+   const Feature* GetFeature(const TrackId track_id) const;
++  const TrackId* GetTrackId(const Feature& feature) const;
+ 
+   void AddFeature(const TrackId track_id, const Feature& feature);
+ 
+@@ -90,7 +92,7 @@ class View {
+   friend class cereal::access;
+   template <class Archive>
+   void serialize(Archive& ar, const std::uint32_t version) {  // NOLINT
+-    ar(name_, is_estimated_, camera_, camera_intrinsics_prior_, features_);
++    ar(name_, is_estimated_, camera_, camera_intrinsics_prior_, features_, tracks_);
+   }
+ 
+   std::string name_;
+@@ -98,6 +100,7 @@ class View {
+   class Camera camera_;
+   struct CameraIntrinsicsPrior camera_intrinsics_prior_;
+   std::unordered_map<TrackId, Feature> features_;
++  std::unordered_map<Feature, TrackId, std::hash<Feature>> tracks_;
+ };
+ 
+ }  // namespace theia
