@@ -10,7 +10,7 @@ import shutil
 server_url = "http://192.168.64.107:5000"
 
 def send_files(uuid):
-    folder_path = f"./data/{uuid}"
+    folder_path = f"./data/{uuid}/results"
     shutil.make_archive(folder_path, 'zip', folder_path)
 
     with open(f"{folder_path}.zip", 'rb') as f:
@@ -21,15 +21,19 @@ def send_files(uuid):
 def download_files(uuid):
     response = requests.get(f"{server_url}/{uuid}/download")
 
-    if response.status_code == 200:
-        with open(f"./data/{uuid}.zip", "wb") as f:
-            f.write(response.content)
-        print("File downloaded successfully")
-    else:
-        print("File not found")
+    fails = 0
+    while fails < 5:
+        if response.status_code == 200:
+            with open(f"./data/{uuid}.zip", "wb") as f:
+                f.write(response.content)
+            with zipfile.ZipFile(f"./data/{uuid}.zip", 'r') as zip_ref:
+                zip_ref.extractall(f"./data/{uuid}")
+            print("File downloaded successfully")
+            return
+        else:
+            print("File not found")
+            fails += 1
 
-    with zipfile.ZipFile(f"./data/{uuid}.zip", 'r') as zip_ref:
-        zip_ref.extractall(f"./data/{uuid}")
     
 def delete_files(uuid):
     subprocess.run(f"rm -r ./data/{uuid}", shell=True)
@@ -56,7 +60,7 @@ def make_response(uuid, numbers, success, output=None):
 
 def init_reconstruction_task(uuid):
     download_files(uuid)
-    command = f"cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}"
+    command = f"cd build/; ./reconstruction_cli init ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/results"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     numbers = re.findall("[-+]?(?:\d*\.\d+|\d+)", output)
     print(output)
@@ -69,7 +73,7 @@ def init_reconstruction_task(uuid):
 
 def extend_reconstruction_task(uuid, number_of_images):
     download_files(uuid)
-    command = f"cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid} {number_of_images - 1}"
+    command = f"cd build/; ./reconstruction_cli extend ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/results {number_of_images - 1}"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
     send_files(uuid)
@@ -87,7 +91,7 @@ def reconstruct_mesh_task(uuid):
 
 def texture_task(uuid):
     download_files(uuid)
-    command = f"cd build/; ./reconstruction_cli texture ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
+    command = f"cd build/; ./reconstruction_cli texture ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/results/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     send_files(uuid)
     delete_files(uuid)
@@ -121,7 +125,8 @@ def generate_ptam_task(uuid):
 
 def refine_mesh_task(uuid):
     download_files(uuid)
-    command = f"cd build/; ./reconstruction_cli refine ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/"
+    print(uuid)
+    command = f"cd build/; ./reconstruction_cli refine ../data/{uuid}/images/ ../data/{uuid}/camera_settings.txt ../data/{uuid}/results/"
     output = subprocess.run(command, capture_output=True, shell=True).stdout.decode()
     print(output)
     send_files(uuid)
