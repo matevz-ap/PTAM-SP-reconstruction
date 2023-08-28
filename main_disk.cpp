@@ -81,10 +81,11 @@ int main(int argc, char *argv[]) {
     // Attach reconstruction plugin
     ReconstructionPlugin::Parameters reconstruction_parameters;
     std::shared_ptr<std::vector<std::string>> image_names = std::make_shared<std::vector<std::string>>();
-    for (int i = 0; i <= num_images; i++) {
+    for (int i = 1; i <= num_images; i++) {
         std::stringstream ss;
         ss << std::setw(3) << std::setfill('0') << std::to_string(i);
         image_names->emplace_back("frame" + ss.str() + image_ext);
+        // image_names->emplace_back("clean_" + ss.str() + "_6_r5000" + image_ext);
     }
 
     ReconstructionPlugin reconstruction_plugin(reconstruction_parameters,
