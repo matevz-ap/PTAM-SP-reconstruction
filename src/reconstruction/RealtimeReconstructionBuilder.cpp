@@ -11,6 +11,7 @@
 #include <theia/sfm/reconstruction_estimator_utils.h>
 #include <theia/sfm/estimators/feature_correspondence_2d_3d.h>
 #include <theia/io/write_ply_file.h>
+#include <theia/sfm/camera/camera.h>
 #include <colmap/retrieval/utils.h>
 
 #include <filesystem>
@@ -65,11 +66,25 @@ bool RealtimeReconstructionBuilder::InitializeReconstruction(
     // Add new views to reconstruction and set intrinsics priors
     theia::ViewId view1_id = reconstruction_->AddView(image1_filename, 0);
     theia::View* view1 = reconstruction_->MutableView(view1_id);
+    // Eigen::Matrix<double, 3, 4> projection_matrix1;
+    // projection_matrix1 << 2607.429996, -3.844898, 1498.178098, -533936.661373,
+    //                     -192.076910, 2862.552532, 681.798177, 23434.686572,
+    //                     -0.241605, -0.030951, 0.969881, 22.540121;
+    // theia::Camera camera1;
+    // camera1.InitializeFromProjectionMatrix(1600, 1200, projection_matrix1);
     *(view1->MutableCameraIntrinsicsPrior()) = options_.intrinsics_prior;
+    // *(view1->MutableCameraIntrinsicsPrior()) = camera1.CameraIntrinsicsPriorFromIntrinsics();
 
     theia::ViewId view2_id = reconstruction_->AddView(image2_filename, 0);
     theia::View* view2 = reconstruction_->MutableView(view2_id);
+    // Eigen::Matrix<double, 3, 4> projection_matrix2;
+    // projection_matrix2 << 1977.784758, -1210.002933, 1915.072827, -784204.529312,
+    //                     976.333235, 2626.930526, 917.583083, -178022.203917,
+    //                     -0.416183, 0.073779, 0.906283, 71.276252;
+    // theia::Camera camera2;
+    // camera2.InitializeFromProjectionMatrix(1600, 1200, projection_matrix2);
     *(view2->MutableCameraIntrinsicsPrior()) = options_.intrinsics_prior;
+    // *(view2->MutableCameraIntrinsicsPrior()) = camera2.CameraIntrinsicsPriorFromIntrinsics();
 
     // Feature extraction
     std::vector<theia::Keypoint> image1_keypoints;
@@ -149,7 +164,14 @@ bool RealtimeReconstructionBuilder::ExtendReconstruction(const std::string& imag
     // Add new view to reconstruction and set intrinsics prior
     theia::ViewId view_id = reconstruction_->AddView(image_filename, 0);
     theia::View* view = reconstruction_->MutableView(view_id);
+    // Eigen::Matrix<double, 3, 4> projection_matrix;
+    // projection_matrix << 805.625978, -1995.776821, 2100.258376, -861180.861253,
+    //                     1844.712809, 1881.939141, 1323.362766, -479716.738619,
+    //                     -0.509301, 0.248881, 0.823814, 129.344349;
+    // theia::Camera camera;
+    // camera.InitializeFromProjectionMatrix(1600, 1200, projection_matrix);
     *(view->MutableCameraIntrinsicsPrior()) = options_.intrinsics_prior;
+    // *(view->MutableCameraIntrinsicsPrior()) = camera.CameraIntrinsicsPriorFromIntrinsics();
 
     // Feature extraction
     std::vector<theia::Keypoint> image_keypoints;
